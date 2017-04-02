@@ -2,6 +2,7 @@ require 'rake_dependencies'
 require 'ruby_fly'
 require 'rake_fly/version'
 require 'rake_fly/tasklib'
+require 'rake_fly/tasks'
 
 module RakeFly
   include RubyFly
