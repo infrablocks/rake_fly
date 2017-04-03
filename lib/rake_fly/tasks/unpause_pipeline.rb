@@ -18,6 +18,7 @@ module RakeFly
       def define
         desc "Unpause pipeline #{pipeline} for target #{target}"
         task name => [ensure_task] do
+          puts "Unpausing pipeline #{pipeline} for target #{target}..."
           RubyFly.unpause_pipeline(
               target: target,
               pipeline: pipeline)

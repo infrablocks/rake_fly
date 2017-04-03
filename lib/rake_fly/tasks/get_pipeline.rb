@@ -18,6 +18,7 @@ module RakeFly
       def define
         desc "Get pipeline #{pipeline} for target #{target}"
         task name => [ensure_task] do
+          puts "Getting pipeline #{pipeline} for target #{target}..."
           RubyFly.get_pipeline(
               target: target,
               pipeline: pipeline)
