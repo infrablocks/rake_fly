@@ -1,6 +1,7 @@
 ## Standard stuff:
 *.gem
 *.rbc
+.rakeTasks
 /.config
 /coverage/
 /InstalledFiles
