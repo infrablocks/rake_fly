@@ -46,11 +46,19 @@ module RakeFly
         end
 
         desc "Push pipeline #{pipeline} to target #{target}"
-        task name => [
-            scoped_task_name(set_pipeline_task_name),
-            scoped_task_name(get_pipeline_task_name),
-            scoped_task_name(unpause_pipeline_task_name)
-        ]
+        scoped_set_pipeline_task_name = scoped_task_name(set_pipeline_task_name)
+        scoped_get_pipeline_task_name = scoped_task_name(get_pipeline_task_name)
+        scoped_unpause_pipeline_task_name = scoped_task_name(unpause_pipeline_task_name)
+
+        task name, argument_names do |_, args|
+          [
+              scoped_set_pipeline_task_name,
+              scoped_get_pipeline_task_name,
+              scoped_unpause_pipeline_task_name
+          ].each do |task|
+            Rake::Task[task].invoke(*args)
+          end
+        end
       end
 
       private

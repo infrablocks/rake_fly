@@ -385,25 +385,62 @@ describe RakeFly::Tasks::PushPipeline do
     expect(something2_push_pipeline).not_to be_nil
   end
 
-  it 'invokes the set_pipeline, get_pipeline and unpause_pipeline tasks in order' do
+  it 'configures the task with the provided arguments if specified' do
+    argument_names = [:deployment_identifier, :region]
+
     namespace :something do
       subject.new do |t|
+        t.argument_names = argument_names
+
         t.target = 'supercorp-ci'
         t.pipeline = 'supercorp-something2'
         t.config = 'ci/pipeline.yml'
       end
     end
 
-    expect(Rake::Task['something:push_pipeline'].prerequisite_tasks)
-        .to(contain_exactly(
-                Rake::Task['something:set_pipeline'],
-                Rake::Task['something:get_pipeline'],
-                Rake::Task['something:unpause_pipeline'],))
+    expect(Rake::Task['something:push_pipeline'].arg_names)
+        .to(eq(argument_names))
+  end
+
+  it 'invokes the set_pipeline, get_pipeline and unpause_pipeline tasks in order' do
+    namespace :something do
+      subject.new do |t|
+        t.argument_names = [:thing]
+
+        t.target = 'supercorp-ci'
+        t.pipeline = 'supercorp-something2'
+        t.config = 'ci/pipeline.yml'
+      end
+    end
+
+    set_task = stub_rake_task
+    get_task = stub_rake_task
+    unpause_task = stub_rake_task
+
+    push_task = Rake::Task['something:push_pipeline']
+
+    allow(Rake::Task)
+        .to(receive(:[]).with('something:get_pipeline')
+                .and_return(get_task))
+    allow(Rake::Task)
+        .to(receive(:[]).with('something:set_pipeline')
+                .and_return(set_task))
+    allow(Rake::Task)
+        .to(receive(:[]).with('something:unpause_pipeline')
+                .and_return(unpause_task))
+
+    expect(set_task).to(receive(:invoke).with('important_arg'))
+    expect(get_task).to(receive(:invoke).with('important_arg'))
+    expect(unpause_task).to(receive(:invoke).with('important_arg'))
+
+    push_task.invoke('important_arg')
   end
 
   it 'invokes the set, get and unpause pipeline tasks using custom names when present' do
     namespace :pipeline do
       subject.new do |t|
+        t.argument_names = [:thing]
+
         t.name = :push
 
         t.target = 'supercorp-ci'
@@ -416,11 +453,27 @@ describe RakeFly::Tasks::PushPipeline do
       end
     end
 
-    expect(Rake::Task['pipeline:push'].prerequisite_tasks)
-        .to(contain_exactly(
-                Rake::Task['pipeline:set'],
-                Rake::Task['pipeline:get'],
-                Rake::Task['pipeline:unpause'],))
+    set_task = stub_rake_task
+    get_task = stub_rake_task
+    unpause_task = stub_rake_task
+
+    push_task = Rake::Task['pipeline:push']
+
+    allow(Rake::Task)
+        .to(receive(:[]).with('pipeline:get')
+                .and_return(get_task))
+    allow(Rake::Task)
+        .to(receive(:[]).with('pipeline:set')
+                .and_return(set_task))
+    allow(Rake::Task)
+        .to(receive(:[]).with('pipeline:unpause')
+                .and_return(unpause_task))
+
+    expect(set_task).to(receive(:invoke).with('important_arg'))
+    expect(get_task).to(receive(:invoke).with('important_arg'))
+    expect(unpause_task).to(receive(:invoke).with('important_arg'))
+
+    push_task.invoke('important_arg')
   end
 
   def double_allowing(*messages)
@@ -429,6 +482,10 @@ describe RakeFly::Tasks::PushPipeline do
       allow(instance).to(receive(message))
     end
     instance
+  end
+
+  def stub_rake_task
+    double_allowing(:argument_names=, :target=, :pipeline=)
   end
 
   def stubbed_get_pipeline_task
