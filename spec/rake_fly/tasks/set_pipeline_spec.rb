@@ -106,6 +106,29 @@ describe RakeFly::Tasks::SetPipeline do
         .to(include(Rake::Task['tools:fly:ensure']))
   end
 
+  it 'configures the task with the provided arguments if specified' do
+    argument_names = [:deployment_identifier, :region]
+
+    namespace :tools do
+      namespace :fly do
+        task :ensure
+      end
+    end
+
+    namespace :something do
+      subject.new do |t|
+        t.argument_names = argument_names
+
+        t.target = 'supercorp-ci'
+        t.pipeline = 'supercorp-something2'
+        t.config = 'ci/pipeline.yml'
+      end
+    end
+
+    expect(Rake::Task['something:set_pipeline'].arg_names)
+        .to(eq(argument_names))
+  end
+
   it 'sets the specific pipeline and config for the specified target' do
     target = 'supercorp-ci'
     pipeline = 'supercorp-something'
@@ -128,6 +151,77 @@ describe RakeFly::Tasks::SetPipeline do
                           config: config)))
 
     Rake::Task['set_pipeline'].invoke
+  end
+
+  it 'uses the provided target factory when supplied' do
+    target = 'supercorp-ci'
+    pipeline = 'supercorp-something'
+    config = 'ci/pipeline.yml'
+
+    subject.new do |t|
+      t.argument_names = [:target]
+
+      t.target = lambda {|args| args.target}
+      t.pipeline = pipeline
+      t.config = config
+    end
+
+    stub_puts
+    stub_ruby_fly
+
+    expect(RubyFly)
+        .to(receive(:set_pipeline)
+                .with(hash_including(target: target)))
+
+    Rake::Task['set_pipeline'].invoke(target)
+  end
+
+  it 'uses the provided pipeline factory when supplied' do
+    target = 'supercorp-ci'
+    pipeline = 'supercorp-something'
+    config = 'ci/pipeline.yml'
+
+    subject.new do |t|
+      t.argument_names = [:pipeline]
+
+      t.target = target
+      t.pipeline = lambda {|args| args.pipeline}
+      t.config = config
+    end
+
+    stub_puts
+    stub_ruby_fly
+
+    expect(RubyFly)
+        .to(receive(:set_pipeline)
+                .with(hash_including(
+                          target: target,
+                          pipeline: pipeline)))
+
+    Rake::Task['set_pipeline'].invoke(pipeline)
+  end
+
+  it 'uses the provided config factory when supplied' do
+    target = 'supercorp-ci'
+    pipeline = 'supercorp-something'
+    config = 'ci/pipeline.yml'
+
+    subject.new do |t|
+      t.argument_names = [:config]
+
+      t.target = target
+      t.pipeline = pipeline
+      t.config = lambda {|args| args.config}
+    end
+
+    stub_puts
+    stub_ruby_fly
+
+    expect(RubyFly)
+        .to(receive(:set_pipeline)
+                .with(hash_including(config: config)))
+
+    Rake::Task['set_pipeline'].invoke(config)
   end
 
   it 'passes the provided vars when present' do
@@ -177,6 +271,33 @@ describe RakeFly::Tasks::SetPipeline do
     Rake::Task['set_pipeline'].invoke
   end
 
+  it 'uses the provided vars factory when supplied' do
+    target = 'supercorp-ci'
+    pipeline = 'supercorp-something'
+    config = 'ci/pipeline.yml'
+    important_var = 'some-value'
+
+    subject.new do |t|
+      t.argument_names = [:important_var]
+
+      t.target = target
+      t.pipeline = pipeline
+      t.config = config
+
+      t.vars = lambda {|args| {the_var: args.important_var}}
+    end
+
+    stub_puts
+    stub_ruby_fly
+
+    expect(RubyFly)
+        .to(receive(:set_pipeline)
+                .with(hash_including(
+                          vars: {the_var: important_var})))
+
+    Rake::Task['set_pipeline'].invoke(important_var)
+  end
+
   it 'passes the provided var files when present' do
     target = 'supercorp-ci'
     pipeline = 'supercorp-something'
@@ -224,14 +345,37 @@ describe RakeFly::Tasks::SetPipeline do
     Rake::Task['set_pipeline'].invoke
   end
 
+  it 'uses the provided var files factory when supplied' do
+    target = 'supercorp-ci'
+    pipeline = 'supercorp-something'
+    config = 'ci/pipeline.yml'
+    important_var_file = 'some/file.yml'
+
+    subject.new do |t|
+      t.argument_names = [:important_var_file]
+
+      t.target = target
+      t.pipeline = pipeline
+      t.config = config
+
+      t.var_files = lambda {|args| [args.important_var_file]}
+    end
+
+    stub_puts
+    stub_ruby_fly
+
+    expect(RubyFly)
+        .to(receive(:set_pipeline)
+                .with(hash_including(
+                          var_files: [important_var_file])))
+
+    Rake::Task['set_pipeline'].invoke(important_var_file)
+  end
+
   it 'passes the provided value for non-interactive when present' do
     target = 'supercorp-ci'
     pipeline = 'supercorp-something'
     config = 'ci/pipeline.yml'
-    vars = {
-        key1: 'value1',
-        key2: 'value2'
-    }
 
     subject.new do |t|
       t.target = target

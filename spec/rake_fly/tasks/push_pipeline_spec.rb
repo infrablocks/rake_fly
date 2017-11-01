@@ -47,6 +47,27 @@ describe RakeFly::Tasks::PushPipeline do
         end
       end
     end
+
+    it 'uses the provided argument names when present' do
+      argument_names = [:argument, :names]
+
+      get_pipeline_configurer = stubbed_get_pipeline_task
+
+      expect(RakeFly::Tasks::GetPipeline)
+          .to(receive(:new).and_yield(get_pipeline_configurer))
+      expect(get_pipeline_configurer)
+          .to(receive(:argument_names=).with(argument_names))
+
+      namespace :something do
+        subject.new do |t|
+          t.argument_names = argument_names
+
+          t.target = 'supercorp-ci'
+          t.pipeline = 'supercorp-something'
+          t.config = 'ci/pipeline.yml'
+        end
+      end
+    end
   end
 
   context 'set pipeline task' do
@@ -220,6 +241,27 @@ describe RakeFly::Tasks::PushPipeline do
         end
       end
     end
+
+    it 'uses the provided argument names when present' do
+      argument_names = [:argument, :names]
+
+      set_pipeline_configurer = stubbed_set_pipeline_task
+
+      expect(RakeFly::Tasks::SetPipeline)
+          .to(receive(:new).and_yield(set_pipeline_configurer))
+      expect(set_pipeline_configurer)
+          .to(receive(:argument_names=).with(argument_names))
+
+      namespace :something do
+        subject.new do |t|
+          t.argument_names = argument_names
+
+          t.target = 'supercorp-ci'
+          t.pipeline = 'supercorp-something'
+          t.config = 'ci/pipeline.yml'
+        end
+      end
+    end
   end
 
   context 'unpause pipeline task' do
@@ -256,6 +298,27 @@ describe RakeFly::Tasks::PushPipeline do
           t.config = 'ci/pipeline.yml'
 
           t.unpause_pipeline_task_name = :unpause
+        end
+      end
+    end
+
+    it 'uses the provided argument names when present' do
+      argument_names = [:argument, :names]
+
+      unpause_pipeline_configurer = stubbed_unpause_pipeline_task
+
+      expect(RakeFly::Tasks::UnpausePipeline)
+          .to(receive(:new).and_yield(unpause_pipeline_configurer))
+      expect(unpause_pipeline_configurer)
+          .to(receive(:argument_names=).with(argument_names))
+
+      namespace :something do
+        subject.new do |t|
+          t.argument_names = argument_names
+
+          t.target = 'supercorp-ci'
+          t.pipeline = 'supercorp-something'
+          t.config = 'ci/pipeline.yml'
         end
       end
     end
@@ -369,16 +432,16 @@ describe RakeFly::Tasks::PushPipeline do
   end
 
   def stubbed_get_pipeline_task
-    double_allowing(:target=, :pipeline=)
+    double_allowing(:argument_names=, :target=, :pipeline=)
   end
 
   def stubbed_set_pipeline_task
     double_allowing(
-        :target=, :pipeline=, :config=, :vars=, :var_files=,
+        :argument_names=, :target=, :pipeline=, :config=, :vars=, :var_files=,
         :non_interactive=)
   end
 
   def stubbed_unpause_pipeline_task
-    double_allowing(:target=, :pipeline=)
+    double_allowing(:argument_names=, :target=, :pipeline=)
   end
 end

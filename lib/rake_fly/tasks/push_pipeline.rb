@@ -6,6 +6,7 @@ module RakeFly
   module Tasks
     class PushPipeline < TaskLib
       parameter :name, :default => :push_pipeline
+      parameter :argument_names, :default => []
 
       parameter :target, :required => true
       parameter :pipeline, :required => true
@@ -25,10 +26,12 @@ module RakeFly
 
       def define
         GetPipeline.new(get_pipeline_task_name) do |t|
+          t.argument_names = argument_names
           t.target = target
           t.pipeline = pipeline
         end
         SetPipeline.new(set_pipeline_task_name) do |t|
+          t.argument_names = argument_names
           t.target = target
           t.pipeline = pipeline
           t.config = config
@@ -37,6 +40,7 @@ module RakeFly
           t.non_interactive = non_interactive
         end
         UnpausePipeline.new(unpause_pipeline_task_name) do |t|
+          t.argument_names = argument_names
           t.target = target
           t.pipeline = pipeline
         end

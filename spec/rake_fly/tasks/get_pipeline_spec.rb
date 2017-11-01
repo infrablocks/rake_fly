@@ -99,6 +99,28 @@ describe RakeFly::Tasks::GetPipeline do
         .to(include(Rake::Task['tools:fly:ensure']))
   end
 
+  it 'configures the task with the provided arguments if specified' do
+    argument_names = [:deployment_identifier, :region]
+
+    namespace :tools do
+      namespace :fly do
+        task :ensure
+      end
+    end
+
+    namespace :something do
+      subject.new do |t|
+        t.argument_names = argument_names
+
+        t.target = 'supercorp-ci'
+        t.pipeline = 'supercorp-something2'
+      end
+    end
+
+    expect(Rake::Task['something:get_pipeline'].arg_names)
+        .to(eq(argument_names))
+  end
+
   it 'gets the specific pipeline from the specified target' do
     target = 'supercorp-ci'
     pipeline = 'supercorp-something'
@@ -118,6 +140,50 @@ describe RakeFly::Tasks::GetPipeline do
                           pipeline: pipeline)))
 
     Rake::Task['get_pipeline'].invoke
+  end
+
+  it 'uses the provided target factory when supplied' do
+    target = 'supercorp-ci'
+    pipeline = 'supercorp-something'
+
+    subject.new do |t|
+      t.argument_names = [:target]
+      t.target = lambda { |args| args.target }
+      t.pipeline = pipeline
+    end
+
+    stub_puts
+    stub_ruby_fly
+
+    expect(RubyFly)
+        .to(receive(:get_pipeline)
+                .with(hash_including(
+                          target: target,
+                          pipeline: pipeline)))
+
+    Rake::Task['get_pipeline'].invoke(target)
+  end
+
+  it 'uses the provided pipeline factory when supplied' do
+    target = 'supercorp-ci'
+    pipeline = 'supercorp-something'
+
+    subject.new do |t|
+      t.argument_names = [:pipeline]
+      t.target = target
+      t.pipeline = lambda { |args| args.pipeline }
+    end
+
+    stub_puts
+    stub_ruby_fly
+
+    expect(RubyFly)
+        .to(receive(:get_pipeline)
+                .with(hash_including(
+                          target: target,
+                          pipeline: pipeline)))
+
+    Rake::Task['get_pipeline'].invoke(pipeline)
   end
 
   def stub_puts
