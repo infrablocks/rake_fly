@@ -45,11 +45,14 @@ module RakeFly
           t.pipeline = pipeline
         end
 
-        desc "Push pipeline #{pipeline} to target #{target}"
+        pipeline_name = pipeline.respond_to?(:call) ? "<derived>" : pipeline
+        target_name = target.respond_to?(:call) ? "<derived>" : target
+
         scoped_set_pipeline_task_name = scoped_task_name(set_pipeline_task_name)
         scoped_get_pipeline_task_name = scoped_task_name(get_pipeline_task_name)
         scoped_unpause_pipeline_task_name = scoped_task_name(unpause_pipeline_task_name)
 
+        desc "Push pipeline #{pipeline_name} for target #{target_name}"
         task name, argument_names do |_, args|
           [
               scoped_set_pipeline_task_name,

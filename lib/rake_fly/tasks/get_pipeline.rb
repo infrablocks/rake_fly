@@ -17,7 +17,10 @@ module RakeFly
       end
 
       def define
-        desc "Get pipeline #{pipeline} for target #{target}"
+        pipeline_name = pipeline.respond_to?(:call) ? "<derived>" : pipeline
+        target_name = target.respond_to?(:call) ? "<derived>" : target
+
+        desc "Get pipeline #{pipeline_name} for target #{target_name}"
         task name, argument_names => [ensure_task] do |_, args|
           derived_target = target.respond_to?(:call) ?
               target.call(*[args].slice(0, target.arity)) :
@@ -26,7 +29,7 @@ module RakeFly
               pipeline.call(*[args].slice(0, pipeline.arity)) :
               pipeline
 
-          puts "Getting pipeline #{pipeline} for target #{target}..."
+          puts "Getting pipeline #{derived_pipeline} for target #{derived_target}..."
           RubyFly.get_pipeline(
               target: derived_target,
               pipeline: derived_pipeline)

@@ -22,7 +22,10 @@ module RakeFly
       end
 
       def define
-        desc "Set pipeline #{pipeline} for target #{target}"
+        pipeline_name = pipeline.respond_to?(:call) ? "<derived>" : pipeline
+        target_name = target.respond_to?(:call) ? "<derived>" : target
+
+        desc "Set pipeline #{pipeline_name} for target #{target_name}"
         task name, argument_names => [ensure_task] do |_, args|
           derived_target = target.respond_to?(:call) ?
                                target.call(*[args].slice(0, target.arity)) :
@@ -40,7 +43,7 @@ module RakeFly
                              var_files.call(*[args].slice(0, var_files.arity)) :
                              var_files
 
-          puts "Setting pipeline #{pipeline} for target #{target}..."
+          puts "Setting pipeline #{derived_pipeline} for target #{derived_target}..."
           RubyFly.set_pipeline(
               target: derived_target,
               pipeline: derived_pipeline,
