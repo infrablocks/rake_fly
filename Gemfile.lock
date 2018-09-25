@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    rake_fly (0.8.1.pre1)
+    rake_fly (0.9.0)
       rake_dependencies (~> 0.18)
       ruby_fly (~> 0.4)
 
