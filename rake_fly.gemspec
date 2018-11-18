@@ -23,14 +23,14 @@ Gem::Specification.new do |spec|
   spec.executables = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ['lib']
 
-  spec.add_dependency 'rake_dependencies', '~> 0.18'
-  spec.add_dependency 'ruby_fly', '~> 0.4'
+  spec.add_dependency 'rake_dependencies', '~> 0.19'
+  spec.add_dependency 'ruby_fly', '~> 0.5'
 
-  spec.add_development_dependency 'bundler', '~> 1.14'
-  spec.add_development_dependency 'rake', '~> 11.0'
-  spec.add_development_dependency 'rspec', '~> 3.0'
-  spec.add_development_dependency 'gem-release', '~> 0.7'
-  spec.add_development_dependency 'activesupport', '~> 4.2'
-  spec.add_development_dependency 'fakefs', '~> 0.10'
-  spec.add_development_dependency 'simplecov', '~> 0.13'
+  spec.add_development_dependency 'bundler', '~> 1.17'
+  spec.add_development_dependency 'rake', '~> 12.3'
+  spec.add_development_dependency 'rspec', '~> 3.8'
+  spec.add_development_dependency 'gem-release', '~> 2.0'
+  spec.add_development_dependency 'activesupport', '~> 5.2'
+  spec.add_development_dependency 'fakefs', '~> 0.18'
+  spec.add_development_dependency 'simplecov', '~> 0.16'
 end
