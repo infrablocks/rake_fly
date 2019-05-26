@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    rake_fly (0.14.0.pre.pre.1)
+    rake_fly (0.14.0.pre.pre.2)
       rake_dependencies (~> 0.19)
       ruby_fly (~> 0.5)
 
@@ -73,4 +73,4 @@ DEPENDENCIES
   simplecov (~> 0.16)
 
 BUNDLED WITH
-   1.17.1
+   1.17.3
