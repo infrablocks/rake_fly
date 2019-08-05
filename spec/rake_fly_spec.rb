@@ -242,6 +242,34 @@ RSpec.describe RakeFly do
 
           RakeFly.define_installation_tasks
         end
+
+        it 'uses the correct source binary name template' do
+          task = stubbed_rake_dependencies_all_task
+
+          allow(RubyFly).to(receive(:configure))
+          expect(RakeDependencies::Tasks::All)
+              .to(receive(:new).and_yield(task))
+
+          expect(task)
+              .to(receive(:source_binary_name_template=)
+                      .with('fly_<%= @os_id %>_amd64'))
+
+          RakeFly.define_installation_tasks
+        end
+
+        it 'uses the correct target binary name template' do
+          task = stubbed_rake_dependencies_all_task
+
+          allow(RubyFly).to(receive(:configure))
+          expect(RakeDependencies::Tasks::All)
+              .to(receive(:new).and_yield(task))
+
+          expect(task)
+              .to(receive(:target_binary_name_template=)
+                      .with('fly'))
+
+          RakeFly.define_installation_tasks
+        end
       end
     end
   end

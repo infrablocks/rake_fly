@@ -31,6 +31,11 @@ module RakeFly
       t.uri_template = self.uri_template(version)
       t.file_name_template = self.file_name_template(version)
 
+      unless self.new_format?(version)
+        t.source_binary_name_template = "fly_<%= @os_id %>_amd64"
+        t.target_binary_name_template = "fly"
+      end
+
       t.needs_fetch = lambda do |parameters|
         fly_binary = File.join(
             parameters[:path], parameters[:binary_directory], 'fly')
