@@ -25,11 +25,8 @@ module RakeFly
       t.os_ids = {mac: 'darwin', linux: 'linux'}
 
       t.uri_template = "https://github.com/concourse/concourse/releases/" +
-          "download/v<%= @version %>/fly_<%= @os_id %>_amd64"
-      t.file_name_template = "fly_<%= @os_id %>_amd64"
-
-      t.source_binary_name_template = "fly_<%= @os_id %>_amd64"
-      t.target_binary_name_template = 'fly'
+          "download/v<%= @version %>/fly_<%= @os_id %>_amd64<%= @ext %>"
+      t.file_name_template = "fly_<%= @os_id %>_amd64<%= @ext %>"
 
       t.needs_fetch = lambda do |parameters|
         fly_binary = File.join(

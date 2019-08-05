@@ -166,7 +166,7 @@ RSpec.describe RakeFly do
             .to(receive(:uri_template=)
                     .with('https://github.com/concourse/concourse/releases/' +
                               'download/v<%= @version %>/' +
-                              'fly_<%= @os_id %>_amd64'))
+                              'fly_<%= @os_id %>_amd64<%= @ext %>'))
 
         RakeFly.define_installation_tasks
       end
@@ -180,35 +180,7 @@ RSpec.describe RakeFly do
 
         expect(task)
             .to(receive(:file_name_template=)
-                    .with('fly_<%= @os_id %>_amd64'))
-
-        RakeFly.define_installation_tasks
-      end
-
-      it 'uses the correct source binary name template' do
-        task = stubbed_rake_dependencies_all_task
-
-        allow(RubyFly).to(receive(:configure))
-        expect(RakeDependencies::Tasks::All)
-            .to(receive(:new).and_yield(task))
-
-        expect(task)
-            .to(receive(:source_binary_name_template=)
-                    .with('fly_<%= @os_id %>_amd64'))
-
-        RakeFly.define_installation_tasks
-      end
-
-      it 'uses the correct target binary name template' do
-        task = stubbed_rake_dependencies_all_task
-
-        allow(RubyFly).to(receive(:configure))
-        expect(RakeDependencies::Tasks::All)
-            .to(receive(:new).and_yield(task))
-
-        expect(task)
-            .to(receive(:target_binary_name_template=)
-                    .with('fly'))
+                    .with('fly_<%= @os_id %>_amd64<%= @ext %>'))
 
         RakeFly.define_installation_tasks
       end
