@@ -20,7 +20,7 @@ module RakeFly
       t.dependency = 'fly'
       t.version = version
       t.path = path
-      t.type = :uncompressed
+      t.type = :zip
 
       t.os_ids = {mac: 'darwin', linux: 'linux'}
 
