@@ -164,9 +164,9 @@ RSpec.describe RakeFly do
 
         expect(task)
             .to(receive(:uri_template=)
-                    .with('https://github.com/concourse/concourse/releases/' +
-                              'download/v<%= @version %>/' +
-                              'fly_<%= @os_id %>_amd64<%= @ext %>'))
+                    .with('https://github.com/concourse/concourse/releases/download' +
+                              '/v<%= @version %>' + 
+                              '/fly-<%= @version %>-<%= @os_id %>-amd64<%= @ext %>'))
 
         RakeFly.define_installation_tasks
       end
@@ -180,7 +180,7 @@ RSpec.describe RakeFly do
 
         expect(task)
             .to(receive(:file_name_template=)
-                    .with('fly_<%= @os_id %>_amd64<%= @ext %>'))
+                    .with('fly-<%= @version %>-<%= @os_id %>-amd64<%= @ext %>'))
 
         RakeFly.define_installation_tasks
       end
