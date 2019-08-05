@@ -129,18 +129,6 @@ RSpec.describe RakeFly do
             path: File.join('tools', 'fly'))
       end
 
-      it 'uses a type of tgz' do
-        task = stubbed_rake_dependencies_all_task
-
-        allow(RubyFly).to(receive(:configure))
-        expect(RakeDependencies::Tasks::All)
-            .to(receive(:new).and_yield(task))
-
-        expect(task).to(receive(:type=).with(:tgz))
-
-        RakeFly.define_installation_tasks
-      end
-
       it 'uses os_ids of darwin and linux' do
         task = stubbed_rake_dependencies_all_task
 
@@ -155,36 +143,7 @@ RSpec.describe RakeFly do
         RakeFly.define_installation_tasks
       end
 
-      it 'uses the correct URI template' do
-        task = stubbed_rake_dependencies_all_task
-
-        allow(RubyFly).to(receive(:configure))
-        expect(RakeDependencies::Tasks::All)
-            .to(receive(:new).and_yield(task))
-
-        expect(task)
-            .to(receive(:uri_template=)
-                    .with('https://github.com/concourse/concourse/releases/download' +
-                              '/v<%= @version %>' + 
-                              '/fly-<%= @version %>-<%= @os_id %>-amd64<%= @ext %>'))
-
-        RakeFly.define_installation_tasks
-      end
-
-      it 'uses the correct file name template' do
-        task = stubbed_rake_dependencies_all_task
-
-        allow(RubyFly).to(receive(:configure))
-        expect(RakeDependencies::Tasks::All)
-            .to(receive(:new).and_yield(task))
-
-        expect(task)
-            .to(receive(:file_name_template=)
-                    .with('fly-<%= @version %>-<%= @os_id %>-amd64<%= @ext %>'))
-
-        RakeFly.define_installation_tasks
-      end
-
+      # TODO: test needs_fetch more thoroughly
       it 'provides a needs_fetch checker' do
         task = stubbed_rake_dependencies_all_task
 
@@ -197,7 +156,93 @@ RSpec.describe RakeFly do
         RakeFly.define_installation_tasks
       end
 
-      # TODO: test needs_fetch more thoroughly
+      context 'when installing versions 5.0.0 and above' do
+        it 'uses a type of tgz' do
+          task = stubbed_rake_dependencies_all_task
+  
+          allow(RubyFly).to(receive(:configure))
+          expect(RakeDependencies::Tasks::All)
+              .to(receive(:new).and_yield(task))
+  
+          expect(task).to(receive(:type=).with(:tgz))
+  
+          RakeFly.define_installation_tasks(version: '5.0.0')
+        end
+
+        it 'uses the correct URI template' do
+          task = stubbed_rake_dependencies_all_task
+  
+          allow(RubyFly).to(receive(:configure))
+          expect(RakeDependencies::Tasks::All)
+              .to(receive(:new).and_yield(task))
+  
+          expect(task)
+              .to(receive(:uri_template=)
+                      .with('https://github.com/concourse/concourse/releases/download' +
+                                '/v<%= @version %>' + 
+                                '/fly-<%= @version %>-<%= @os_id %>-amd64<%= @ext %>'))
+  
+          RakeFly.define_installation_tasks(version: '5.0.0')
+        end
+  
+        it 'uses the correct file name template' do
+          task = stubbed_rake_dependencies_all_task
+  
+          allow(RubyFly).to(receive(:configure))
+          expect(RakeDependencies::Tasks::All)
+              .to(receive(:new).and_yield(task))
+  
+          expect(task)
+              .to(receive(:file_name_template=)
+                      .with('fly-<%= @version %>-<%= @os_id %>-amd64<%= @ext %>'))
+  
+          RakeFly.define_installation_tasks(version: '5.0.0')
+        end
+      end
+
+      context 'when installing older versions' do
+        it 'uses a type of uncompressed' do
+          task = stubbed_rake_dependencies_all_task
+        
+          allow(RubyFly).to(receive(:configure))
+          expect(RakeDependencies::Tasks::All)
+              .to(receive(:new).and_yield(task))
+
+          expect(task).to(receive(:type=).with(:uncompressed))
+
+          RakeFly.define_installation_tasks
+        end
+
+        it 'uses the correct URI template' do
+          task = stubbed_rake_dependencies_all_task
+
+          allow(RubyFly).to(receive(:configure))
+          expect(RakeDependencies::Tasks::All)
+              .to(receive(:new).and_yield(task))
+
+          expect(task)
+              .to(receive(:uri_template=)
+                      .with('https://github.com/concourse/concourse/releases/' +
+                                'download/v<%= @version %>/' +
+                                'fly_<%= @os_id %>_amd64'))
+
+          RakeFly.define_installation_tasks
+        end
+
+        it 'uses the correct file name template' do
+          task = stubbed_rake_dependencies_all_task
+
+          allow(RubyFly).to(receive(:configure))
+          expect(RakeDependencies::Tasks::All)
+              .to(receive(:new).and_yield(task))
+
+          expect(task)
+              .to(receive(:file_name_template=)
+                      .with('fly_<%= @os_id %>_amd64'))
+
+          RakeFly.define_installation_tasks
+        end
+      end
     end
   end
 
