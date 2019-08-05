@@ -129,14 +129,14 @@ RSpec.describe RakeFly do
             path: File.join('tools', 'fly'))
       end
 
-      it 'uses a type of zip' do
+      it 'uses a type of tgz' do
         task = stubbed_rake_dependencies_all_task
 
         allow(RubyFly).to(receive(:configure))
         expect(RakeDependencies::Tasks::All)
             .to(receive(:new).and_yield(task))
 
-        expect(task).to(receive(:type=).with(:zip))
+        expect(task).to(receive(:type=).with(:tgz))
 
         RakeFly.define_installation_tasks
       end
