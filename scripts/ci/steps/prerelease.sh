@@ -9,12 +9,7 @@ PROJECT_DIR="$( cd "$SCRIPT_DIR/../../.." && pwd )"
 
 cd "$PROJECT_DIR"
 
-git status
-
 ./go version:bump[pre]
-
-git status
-
 ./go release
 
 git status
