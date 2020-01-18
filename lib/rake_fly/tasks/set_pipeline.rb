@@ -1,11 +1,17 @@
 require 'ruby_fly'
-require_relative '../tasklib'
+require 'rake_factory'
 
 module RakeFly
   module Tasks
-    class SetPipeline < TaskLib
-      parameter :name, :default => :set_pipeline
-      parameter :argument_names, :default => []
+    class SetPipeline < RakeFactory::Task
+      default_name :set_pipeline
+      default_prerequisites ->(t) { [t.ensure_task_name] }
+      default_description ->(t) do
+        pipeline = t.pipeline || '<derived>'
+        target = t.target || '<derived>'
+
+        "Set pipeline #{pipeline} for target #{target}"
+      end
 
       parameter :target, :required => true
       parameter :pipeline, :required => true
@@ -15,43 +21,17 @@ module RakeFly
       parameter :var_files
       parameter :non_interactive
 
-      parameter :ensure_task, :default => :'fly:ensure'
+      parameter :ensure_task_name, :default => :'fly:ensure'
 
-      def process_arguments(args)
-        self.name = args[0] if args[0]
-      end
-
-      def define
-        pipeline_name = pipeline.respond_to?(:call) ? "<derived>" : pipeline
-        target_name = target.respond_to?(:call) ? "<derived>" : target
-
-        desc "Set pipeline #{pipeline_name} for target #{target_name}"
-        task name, argument_names => [ensure_task] do |_, args|
-          derived_target = target.respond_to?(:call) ?
-                               target.call(*[args].slice(0, target.arity)) :
-                               target
-          derived_pipeline = pipeline.respond_to?(:call) ?
-                                 pipeline.call(*[args].slice(0, pipeline.arity)) :
-                                 pipeline
-          derived_config = config.respond_to?(:call) ?
-                                 config.call(*[args].slice(0, config.arity)) :
-                                 config
-          derived_vars = vars.respond_to?(:call) ?
-                             vars.call(*[args].slice(0, vars.arity)) :
-                             vars
-          derived_var_files = var_files.respond_to?(:call) ?
-                             var_files.call(*[args].slice(0, var_files.arity)) :
-                             var_files
-
-          puts "Setting pipeline #{derived_pipeline} for target #{derived_target}..."
-          RubyFly.set_pipeline(
-              target: derived_target,
-              pipeline: derived_pipeline,
-              config: derived_config,
-              vars: derived_vars,
-              var_files: derived_var_files,
-              non_interactive: non_interactive)
-        end
+      action do |t|
+        puts "Setting pipeline #{t.pipeline} for target #{t.target}..."
+        RubyFly.set_pipeline(
+            target: t.target,
+            pipeline: t.pipeline,
+            config: t.config,
+            vars: t.vars,
+            var_files: t.var_files,
+            non_interactive: t.non_interactive)
       end
     end
   end

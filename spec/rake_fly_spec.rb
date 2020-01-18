@@ -8,297 +8,146 @@ RSpec.describe RakeFly do
   it 'includes all the RubyTerraform methods' do
     expect(RakeFly)
         .to(respond_to(
-                :get_pipeline, :set_pipeline, :unpause_pipeline, :version))
+            :get_pipeline, :set_pipeline, :unpause_pipeline, :version))
   end
 
   context 'define_installation_tasks' do
     context 'when configuring RubyFly' do
       it 'sets the binary using a path of vendor/fly by default' do
-        config = stubbed_ruby_fly_config
-
-        allow(RakeDependencies::Tasks::All).to(receive(:new))
-        expect(RubyFly).to(receive(:configure).and_yield(config))
-
-        expect(config)
-            .to(receive(:binary=)
-                    .with('vendor/fly/bin/fly'))
-
         RakeFly.define_installation_tasks
+
+        expect(RubyFly.configuration.binary)
+            .to(eq('vendor/fly/bin/fly'))
       end
 
       it 'uses the supplied path when provided' do
-        config = stubbed_ruby_fly_config
+        RakeFly.define_installation_tasks(path: 'tools/fly')
 
-        allow(RakeDependencies::Tasks::All).to(receive(:new))
-        expect(RubyFly).to(receive(:configure).and_yield(config))
-
-        expect(config)
-            .to(receive(:binary=)
-                    .with('tools/fly/bin/fly'))
-
-        RakeFly.define_installation_tasks(
-            path: 'tools/fly')
+        expect(RubyFly.configuration.binary)
+            .to(eq('tools/fly/bin/fly'))
       end
     end
 
     context 'when instantiating RakeDependencies::Tasks::All' do
       it 'sets the namespace to fly by default' do
-        task = stubbed_rake_dependencies_all_task
+        task_set = RakeFly.define_installation_tasks
 
-        allow(RubyFly).to(receive(:configure))
-        expect(RakeDependencies::Tasks::All)
-            .to(receive(:new).and_yield(task))
-
-        expect(task).to(receive(:namespace=).with(:fly))
-
-        RakeFly.define_installation_tasks
+        expect(task_set.namespace).to(eq("fly"))
       end
 
       it 'uses the supplied namespace when provided' do
-        task = stubbed_rake_dependencies_all_task
+        task_set = RakeFly.define_installation_tasks(namespace: :tools_fly)
 
-        allow(RubyFly).to(receive(:configure))
-        expect(RakeDependencies::Tasks::All)
-            .to(receive(:new).and_yield(task))
-
-        expect(task).to(receive(:namespace=).with(:tools_fly))
-
-        RakeFly.define_installation_tasks(
-            namespace: :tools_fly)
+        expect(task_set.namespace).to(eq("tools_fly"))
       end
 
       it 'sets the dependency to fly' do
-        task = stubbed_rake_dependencies_all_task
+        task_set = RakeFly.define_installation_tasks
 
-        allow(RubyFly).to(receive(:configure))
-        expect(RakeDependencies::Tasks::All)
-            .to(receive(:new).and_yield(task))
-
-        expect(task).to(receive(:dependency=).with('fly'))
-
-        RakeFly.define_installation_tasks
+        expect(task_set.dependency).to(eq('fly'))
       end
 
       it 'sets the version to 2.7.0 by default' do
-        task = stubbed_rake_dependencies_all_task
+        task_set = RakeFly.define_installation_tasks
 
-        allow(RubyFly).to(receive(:configure))
-        expect(RakeDependencies::Tasks::All)
-            .to(receive(:new).and_yield(task))
-
-        expect(task).to(receive(:version=).with('2.7.0'))
-
-        RakeFly.define_installation_tasks
+        expect(task_set.version).to(eq('2.7.0'))
       end
 
       it 'uses the supplied version when provided' do
-        task = stubbed_rake_dependencies_all_task
+        task_set = RakeFly.define_installation_tasks(version: '2.6.0')
 
-        allow(RubyFly).to(receive(:configure))
-        expect(RakeDependencies::Tasks::All)
-            .to(receive(:new).and_yield(task))
-
-        expect(task).to(receive(:version=).with('2.6.0'))
-
-        RakeFly.define_installation_tasks(
-            version: '2.6.0')
+        expect(task_set.version).to(eq('2.6.0'))
       end
 
       it 'uses a path of vendor/fly by default' do
-        task = stubbed_rake_dependencies_all_task
+        task_set = RakeFly.define_installation_tasks
 
-        allow(RubyFly).to(receive(:configure))
-        expect(RakeDependencies::Tasks::All)
-            .to(receive(:new).and_yield(task))
-
-        expect(task).to(receive(:path=).with('vendor/fly'))
-
-        RakeFly.define_installation_tasks
+        expect(task_set.path).to(eq('vendor/fly'))
       end
 
       it 'uses the supplied path when provided' do
-        task = stubbed_rake_dependencies_all_task
-
-        allow(RubyFly).to(receive(:configure))
-        expect(RakeDependencies::Tasks::All)
-            .to(receive(:new).and_yield(task))
-
-        expect(task).to(receive(:path=).with('tools/fly'))
-
-        RakeFly.define_installation_tasks(
+        task_set = RakeFly.define_installation_tasks(
             path: File.join('tools', 'fly'))
+
+        expect(task_set.path).to(eq('tools/fly'))
       end
 
       it 'uses os_ids of darwin and linux' do
-        task = stubbed_rake_dependencies_all_task
+        task_set = RakeFly.define_installation_tasks
 
-        allow(RubyFly).to(receive(:configure))
-        expect(RakeDependencies::Tasks::All)
-            .to(receive(:new).and_yield(task))
-
-        expect(task)
-            .to(receive(:os_ids=)
-                    .with({mac: 'darwin', linux: 'linux'}))
-
-        RakeFly.define_installation_tasks
+        expect(task_set.os_ids)
+            .to(eq({mac: 'darwin', linux: 'linux'}))
       end
 
       # TODO: test needs_fetch more thoroughly
       it 'provides a needs_fetch checker' do
-        task = stubbed_rake_dependencies_all_task
+        task_set = RakeFly.define_installation_tasks
 
-        allow(RubyFly).to(receive(:configure))
-        expect(RakeDependencies::Tasks::All)
-            .to(receive(:new).and_yield(task))
-
-        expect(task).to(receive(:needs_fetch=))
-
-        RakeFly.define_installation_tasks
+        expect(task_set.needs_fetch).not_to(be(nil))
       end
 
       context 'when installing versions 5.0.0 and above' do
         it 'uses a type of tgz' do
-          task = stubbed_rake_dependencies_all_task
-  
-          allow(RubyFly).to(receive(:configure))
-          expect(RakeDependencies::Tasks::All)
-              .to(receive(:new).and_yield(task))
-  
-          expect(task).to(receive(:type=).with(:tgz))
-  
-          RakeFly.define_installation_tasks(version: '5.0.0')
+          task_set = RakeFly.define_installation_tasks(version: '5.0.0')
+
+          expect(task_set.type).to(eq(:tgz))
         end
 
         it 'uses the correct URI template' do
-          task = stubbed_rake_dependencies_all_task
-  
-          allow(RubyFly).to(receive(:configure))
-          expect(RakeDependencies::Tasks::All)
-              .to(receive(:new).and_yield(task))
-  
-          expect(task)
-              .to(receive(:uri_template=)
-                      .with('https://github.com/concourse/concourse/releases/download' +
-                                '/v<%= @version %>' + 
-                                '/fly-<%= @version %>-<%= @os_id %>-amd64<%= @ext %>'))
-  
-          RakeFly.define_installation_tasks(version: '5.0.0')
+          task_set = RakeFly.define_installation_tasks(version: '5.0.0')
+
+          expect(task_set.uri_template)
+              .to(eq(
+                  'https://github.com/concourse/concourse/releases/download' +
+                      '/v<%= @version %>' +
+                      '/fly-<%= @version %>-<%= @os_id %>-amd64<%= @ext %>'))
         end
-  
+
         it 'uses the correct file name template' do
-          task = stubbed_rake_dependencies_all_task
-  
-          allow(RubyFly).to(receive(:configure))
-          expect(RakeDependencies::Tasks::All)
-              .to(receive(:new).and_yield(task))
-  
-          expect(task)
-              .to(receive(:file_name_template=)
-                      .with('fly-<%= @version %>-<%= @os_id %>-amd64<%= @ext %>'))
-  
-          RakeFly.define_installation_tasks(version: '5.0.0')
+          task_set = RakeFly.define_installation_tasks(version: '5.0.0')
+
+          expect(task_set.file_name_template)
+              .to(eq('fly-<%= @version %>-<%= @os_id %>-amd64<%= @ext %>'))
         end
       end
 
       context 'when installing older versions' do
         it 'uses a type of uncompressed' do
-          task = stubbed_rake_dependencies_all_task
-        
-          allow(RubyFly).to(receive(:configure))
-          expect(RakeDependencies::Tasks::All)
-              .to(receive(:new).and_yield(task))
+          task_set = RakeFly.define_installation_tasks
 
-          expect(task).to(receive(:type=).with(:uncompressed))
-
-          RakeFly.define_installation_tasks
+          expect(task_set.type).to(eq(:uncompressed))
         end
 
         it 'uses the correct URI template' do
-          task = stubbed_rake_dependencies_all_task
+          task_set = RakeFly.define_installation_tasks
 
-          allow(RubyFly).to(receive(:configure))
-          expect(RakeDependencies::Tasks::All)
-              .to(receive(:new).and_yield(task))
-
-          expect(task)
-              .to(receive(:uri_template=)
-                      .with('https://github.com/concourse/concourse/releases/' +
-                                'download/v<%= @version %>/' +
-                                'fly_<%= @os_id %>_amd64'))
-
-          RakeFly.define_installation_tasks
+          expect(task_set.uri_template)
+              .to(eq('https://github.com/concourse/concourse/releases/' +
+                  'download/v<%= @version %>/' +
+                  'fly_<%= @os_id %>_amd64'))
         end
 
         it 'uses the correct file name template' do
-          task = stubbed_rake_dependencies_all_task
+          task_set = RakeFly.define_installation_tasks
 
-          allow(RubyFly).to(receive(:configure))
-          expect(RakeDependencies::Tasks::All)
-              .to(receive(:new).and_yield(task))
-
-          expect(task)
-              .to(receive(:file_name_template=)
-                      .with('fly_<%= @os_id %>_amd64'))
-
-          RakeFly.define_installation_tasks
+          expect(task_set.file_name_template)
+              .to(eq('fly_<%= @os_id %>_amd64'))
         end
 
         it 'uses the correct source binary name template' do
-          task = stubbed_rake_dependencies_all_task
+          task_set = RakeFly.define_installation_tasks
 
-          allow(RubyFly).to(receive(:configure))
-          expect(RakeDependencies::Tasks::All)
-              .to(receive(:new).and_yield(task))
-
-          expect(task)
-              .to(receive(:source_binary_name_template=)
-                      .with('fly_<%= @os_id %>_amd64'))
-
-          RakeFly.define_installation_tasks
+          expect(task_set.source_binary_name_template)
+              .to(eq('fly_<%= @os_id %>_amd64'))
         end
 
         it 'uses the correct target binary name template' do
-          task = stubbed_rake_dependencies_all_task
+          task_set = RakeFly.define_installation_tasks
 
-          allow(RubyFly).to(receive(:configure))
-          expect(RakeDependencies::Tasks::All)
-              .to(receive(:new).and_yield(task))
-
-          expect(task)
-              .to(receive(:target_binary_name_template=)
-                      .with('fly'))
-
-          RakeFly.define_installation_tasks
+          expect(task_set.target_binary_name_template)
+              .to(eq('fly'))
         end
       end
     end
-  end
-
-  def double_allowing(*messages)
-    instance = double
-    messages.each do |message|
-      allow(instance).to(receive(message))
-    end
-    instance
-  end
-
-  def stubbed_ruby_fly_config
-    double_allowing(:binary=)
-  end
-
-  def stubbed_rake_dependencies_all_task
-    double_allowing(
-        :namespace=, :dependency=, :version=, :path=, :type=, :os_ids=,
-        :uri_template=, :file_name_template=,
-        :source_binary_name_template=, :target_binary_name_template=,
-        :needs_fetch=)
-  end
-
-  def stubbed_rake_terraform_all_task
-    double_allowing(
-        :configuration_name=, :configuration_directory=,
-        :backend=, :backend_config=, :vars=, :state_file=,
-        :no_color=, :no_backup=, :backup=,
-        :ensure_task=, :provision_task_name=, :destroy_task_name=)
   end
 end

@@ -2,43 +2,47 @@ require 'semantic'
 require 'rake_dependencies'
 require 'ruby_fly'
 require 'rake_fly/version'
-require 'rake_fly/tasklib'
 require 'rake_fly/tasks'
-
-BREAKING_VERSION = '5.0.0'
+require 'rake_fly/task_sets'
 
 module RakeFly
   include RubyFly
+
+  ARTIFACT_FORMAT_CHANGE_VERSION = '5.0.0'
 
   def self.define_installation_tasks(opts = {})
     namespace = opts[:namespace] || :fly
     version = opts[:version] || '2.7.0'
     path = opts[:path] || File.join('vendor', 'fly')
 
+    type = self.type(version)
+    uri_template = self.uri_template(version)
+    file_name_template = self.file_name_template(version)
+    new_format = self.new_format?(version)
+
     RubyFly.configure do |c|
       c.binary = File.join(path, 'bin', 'fly')
     end
 
-    RakeDependencies::Tasks::All.new do |t|
-      t.namespace = namespace
-      t.dependency = 'fly'
-      t.version = version
-      t.path = path
-      t.type = self.type(version)
+    RakeDependencies::TaskSets::All.define do |ts|
+      ts.namespace = namespace
+      ts.dependency = 'fly'
+      ts.version = version
+      ts.path = path
+      ts.type = type
 
-      t.os_ids = {mac: 'darwin', linux: 'linux'}
+      ts.os_ids = {mac: 'darwin', linux: 'linux'}
 
-      t.uri_template = self.uri_template(version)
-      t.file_name_template = self.file_name_template(version)
+      ts.uri_template = uri_template
+      ts.file_name_template = file_name_template
 
-      unless self.new_format?(version)
-        t.source_binary_name_template = "fly_<%= @os_id %>_amd64"
-        t.target_binary_name_template = "fly"
+      unless new_format
+        ts.source_binary_name_template = "fly_<%= @os_id %>_amd64"
+        ts.target_binary_name_template = "fly"
       end
 
-      t.needs_fetch = lambda do |parameters|
-        fly_binary = File.join(
-            parameters[:path], parameters[:binary_directory], 'fly')
+      ts.needs_fetch = lambda do |t|
+        fly_binary = File.join(t.path, t.binary_directory, 'fly')
 
         !(File.exist?(fly_binary) && RubyFly.version == version)
       end
@@ -48,8 +52,8 @@ module RakeFly
   private
 
   def self.new_format?(version)
-    Semantic::Version.new(version) >= 
-      Semantic::Version.new(BREAKING_VERSION)
+    Semantic::Version.new(version) >=
+      Semantic::Version.new(ARTIFACT_FORMAT_CHANGE_VERSION)
   end
 
   def self.type(version)

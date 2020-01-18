@@ -10,10 +10,9 @@ describe RakeFly::Tasks::SetPipeline do
     end
   end
 
-
   it 'adds a set_pipeline task in the namespace in which it is created' do
     namespace :something do
-      subject.new do |t|
+      subject.define do |t|
         t.target = 'supercorp-ci'
         t.pipeline = 'supercorp-something'
         t.config = 'ci/pipeline.yml'
@@ -25,20 +24,20 @@ describe RakeFly::Tasks::SetPipeline do
 
   it 'gives the set_pipeline task a description' do
     namespace :something do
-      subject.new do |t|
-        t.target = 'supercorp-ci'
-        t.pipeline = 'supercorp-something'
+      subject.define(
+          target: 'supercorp-ci',
+          pipeline: 'supercorp-something') do |t|
         t.config = 'ci/pipeline.yml'
       end
     end
 
-    expect(rake.last_description)
+    expect(Rake::Task["something:set_pipeline"].full_comment)
         .to(eq('Set pipeline supercorp-something for target supercorp-ci'))
   end
 
   it 'allows the task name to be overridden' do
     namespace :pipeline do
-      subject.new(:set) do |t|
+      subject.define(name: :set) do |t|
         t.target = 'supercorp-ci'
         t.pipeline = 'supercorp-something'
         t.config = 'ci/pipeline.yml'
@@ -50,7 +49,7 @@ describe RakeFly::Tasks::SetPipeline do
 
   it 'allows multiple set_pipeline tasks to be declared' do
     namespace :something1 do
-      subject.new do |t|
+      subject.define do |t|
         t.target = 'supercorp-ci'
         t.pipeline = 'supercorp-something1'
         t.config = 'ci/pipeline.yml'
@@ -58,7 +57,7 @@ describe RakeFly::Tasks::SetPipeline do
     end
 
     namespace :something2 do
-      subject.new do |t|
+      subject.define do |t|
         t.target = 'supercorp-ci'
         t.pipeline = 'supercorp-something2'
         t.config = 'ci/pipeline.yml'
@@ -74,7 +73,7 @@ describe RakeFly::Tasks::SetPipeline do
 
   it 'depends on the fly:ensure task by default' do
     namespace :something do
-      subject.new do |t|
+      subject.define do |t|
         t.target = 'supercorp-ci'
         t.pipeline = 'supercorp-something2'
         t.config = 'ci/pipeline.yml'
@@ -93,12 +92,10 @@ describe RakeFly::Tasks::SetPipeline do
     end
 
     namespace :something do
-      subject.new do |t|
+      subject.define(ensure_task_name: 'tools:fly:ensure') do |t|
         t.target = 'supercorp-ci'
         t.pipeline = 'supercorp-something2'
         t.config = 'ci/pipeline.yml'
-
-        t.ensure_task = 'tools:fly:ensure'
       end
     end
 
@@ -116,9 +113,7 @@ describe RakeFly::Tasks::SetPipeline do
     end
 
     namespace :something do
-      subject.new do |t|
-        t.argument_names = argument_names
-
+      subject.define(argument_names: argument_names) do |t|
         t.target = 'supercorp-ci'
         t.pipeline = 'supercorp-something2'
         t.config = 'ci/pipeline.yml'
@@ -134,7 +129,7 @@ describe RakeFly::Tasks::SetPipeline do
     pipeline = 'supercorp-something'
     config = 'ci/pipeline.yml'
 
-    subject.new do |t|
+    subject.define do |t|
       t.target = target
       t.pipeline = pipeline
       t.config = config
@@ -145,23 +140,21 @@ describe RakeFly::Tasks::SetPipeline do
 
     expect(RubyFly)
         .to(receive(:set_pipeline)
-                .with(hash_including(
-                          target: target,
-                          pipeline: pipeline,
-                          config: config)))
+            .with(hash_including(
+                target: target,
+                pipeline: pipeline,
+                config: config)))
 
     Rake::Task['set_pipeline'].invoke
   end
 
-  it 'uses the provided target factory when supplied' do
+  it 'derives target from arguments' do
     target = 'supercorp-ci'
     pipeline = 'supercorp-something'
     config = 'ci/pipeline.yml'
 
-    subject.new do |t|
-      t.argument_names = [:target]
-
-      t.target = lambda {|args| args.target}
+    subject.define(argument_names: [:target]) do |t, args|
+      t.target = args.target
       t.pipeline = pipeline
       t.config = config
     end
@@ -171,21 +164,19 @@ describe RakeFly::Tasks::SetPipeline do
 
     expect(RubyFly)
         .to(receive(:set_pipeline)
-                .with(hash_including(target: target)))
+            .with(hash_including(target: target)))
 
     Rake::Task['set_pipeline'].invoke(target)
   end
 
-  it 'uses the provided pipeline factory when supplied' do
+  it 'derives pipeline from arguments' do
     target = 'supercorp-ci'
     pipeline = 'supercorp-something'
     config = 'ci/pipeline.yml'
 
-    subject.new do |t|
-      t.argument_names = [:pipeline]
-
+    subject.define(argument_names: [:pipeline]) do |t, args|
       t.target = target
-      t.pipeline = lambda {|args| args.pipeline}
+      t.pipeline = args.pipeline
       t.config = config
     end
 
@@ -194,24 +185,22 @@ describe RakeFly::Tasks::SetPipeline do
 
     expect(RubyFly)
         .to(receive(:set_pipeline)
-                .with(hash_including(
-                          target: target,
-                          pipeline: pipeline)))
+            .with(hash_including(
+                target: target,
+                pipeline: pipeline)))
 
     Rake::Task['set_pipeline'].invoke(pipeline)
   end
 
-  it 'uses the provided config factory when supplied' do
+  it 'derives config from arguments' do
     target = 'supercorp-ci'
     pipeline = 'supercorp-something'
     config = 'ci/pipeline.yml'
 
-    subject.new do |t|
-      t.argument_names = [:config]
-
+    subject.define(argument_names: [:config]) do |t, args|
       t.target = target
       t.pipeline = pipeline
-      t.config = lambda {|args| args.config}
+      t.config = args.config
     end
 
     stub_puts
@@ -219,7 +208,7 @@ describe RakeFly::Tasks::SetPipeline do
 
     expect(RubyFly)
         .to(receive(:set_pipeline)
-                .with(hash_including(config: config)))
+            .with(hash_including(config: config)))
 
     Rake::Task['set_pipeline'].invoke(config)
   end
@@ -233,7 +222,7 @@ describe RakeFly::Tasks::SetPipeline do
         key2: 'value2'
     }
 
-    subject.new do |t|
+    subject.define do |t|
       t.target = target
       t.pipeline = pipeline
       t.config = config
@@ -245,7 +234,7 @@ describe RakeFly::Tasks::SetPipeline do
 
     expect(RubyFly)
         .to(receive(:set_pipeline)
-                .with(hash_including(vars: vars)))
+            .with(hash_including(vars: vars)))
 
     Rake::Task['set_pipeline'].invoke
   end
@@ -255,7 +244,7 @@ describe RakeFly::Tasks::SetPipeline do
     pipeline = 'supercorp-something'
     config = 'ci/pipeline.yml'
 
-    subject.new do |t|
+    subject.define do |t|
       t.target = target
       t.pipeline = pipeline
       t.config = config
@@ -266,25 +255,23 @@ describe RakeFly::Tasks::SetPipeline do
 
     expect(RubyFly)
         .to(receive(:set_pipeline)
-                .with(hash_including(vars: nil)))
+            .with(hash_including(vars: nil)))
 
     Rake::Task['set_pipeline'].invoke
   end
 
-  it 'uses the provided vars factory when supplied' do
+  it 'derives vars from arguments' do
     target = 'supercorp-ci'
     pipeline = 'supercorp-something'
     config = 'ci/pipeline.yml'
     important_var = 'some-value'
 
-    subject.new do |t|
-      t.argument_names = [:important_var]
-
+    subject.define(argument_names: [:important_var]) do |t, args|
       t.target = target
       t.pipeline = pipeline
       t.config = config
 
-      t.vars = lambda {|args| {the_var: args.important_var}}
+      t.vars = {the_var: args.important_var}
     end
 
     stub_puts
@@ -292,8 +279,8 @@ describe RakeFly::Tasks::SetPipeline do
 
     expect(RubyFly)
         .to(receive(:set_pipeline)
-                .with(hash_including(
-                          vars: {the_var: important_var})))
+            .with(hash_including(
+                vars: {the_var: important_var})))
 
     Rake::Task['set_pipeline'].invoke(important_var)
   end
@@ -307,7 +294,7 @@ describe RakeFly::Tasks::SetPipeline do
         'config/secrets.yml'
     ]
 
-    subject.new do |t|
+    subject.define do |t|
       t.target = target
       t.pipeline = pipeline
       t.config = config
@@ -319,7 +306,7 @@ describe RakeFly::Tasks::SetPipeline do
 
     expect(RubyFly)
         .to(receive(:set_pipeline)
-                .with(hash_including(var_files: var_files)))
+            .with(hash_including(var_files: var_files)))
 
     Rake::Task['set_pipeline'].invoke
   end
@@ -329,7 +316,7 @@ describe RakeFly::Tasks::SetPipeline do
     pipeline = 'supercorp-something'
     config = 'ci/pipeline.yml'
 
-    subject.new do |t|
+    subject.define do |t|
       t.target = target
       t.pipeline = pipeline
       t.config = config
@@ -340,25 +327,23 @@ describe RakeFly::Tasks::SetPipeline do
 
     expect(RubyFly)
         .to(receive(:set_pipeline)
-                .with(hash_including(var_files: nil)))
+            .with(hash_including(var_files: nil)))
 
     Rake::Task['set_pipeline'].invoke
   end
 
-  it 'uses the provided var files factory when supplied' do
+  it 'derives var files from arguments' do
     target = 'supercorp-ci'
     pipeline = 'supercorp-something'
     config = 'ci/pipeline.yml'
     important_var_file = 'some/file.yml'
 
-    subject.new do |t|
-      t.argument_names = [:important_var_file]
-
+    subject.define(argument_names: [:important_var_file]) do |t, args|
       t.target = target
       t.pipeline = pipeline
       t.config = config
 
-      t.var_files = lambda {|args| [args.important_var_file]}
+      t.var_files = [args.important_var_file]
     end
 
     stub_puts
@@ -366,8 +351,8 @@ describe RakeFly::Tasks::SetPipeline do
 
     expect(RubyFly)
         .to(receive(:set_pipeline)
-                .with(hash_including(
-                          var_files: [important_var_file])))
+            .with(hash_including(
+                var_files: [important_var_file])))
 
     Rake::Task['set_pipeline'].invoke(important_var_file)
   end
@@ -377,7 +362,7 @@ describe RakeFly::Tasks::SetPipeline do
     pipeline = 'supercorp-something'
     config = 'ci/pipeline.yml'
 
-    subject.new do |t|
+    subject.define do |t|
       t.target = target
       t.pipeline = pipeline
       t.config = config
@@ -389,7 +374,7 @@ describe RakeFly::Tasks::SetPipeline do
 
     expect(RubyFly)
         .to(receive(:set_pipeline)
-                .with(hash_including(non_interactive: true)))
+            .with(hash_including(non_interactive: true)))
 
     Rake::Task['set_pipeline'].invoke
   end
@@ -399,7 +384,7 @@ describe RakeFly::Tasks::SetPipeline do
     pipeline = 'supercorp-something'
     config = 'ci/pipeline.yml'
 
-    subject.new do |t|
+    subject.define do |t|
       t.target = target
       t.pipeline = pipeline
       t.config = config
@@ -410,7 +395,7 @@ describe RakeFly::Tasks::SetPipeline do
 
     expect(RubyFly)
         .to(receive(:set_pipeline)
-                .with(hash_including(non_interactive: nil)))
+            .with(hash_including(non_interactive: nil)))
 
     Rake::Task['set_pipeline'].invoke
   end

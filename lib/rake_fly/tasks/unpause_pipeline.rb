@@ -1,39 +1,28 @@
 require 'ruby_fly'
-require_relative '../tasklib'
+require 'rake_factory'
 
 module RakeFly
   module Tasks
-    class UnpausePipeline < TaskLib
-      parameter :name, :default => :unpause_pipeline
-      parameter :argument_names, :default => []
+    class UnpausePipeline < RakeFactory::Task
+      default_name :unpause_pipeline
+      default_prerequisites ->(t) { [t.ensure_task_name] }
+      default_description ->(t) do
+        pipeline = t.pipeline || '<derived>'
+        target = t.target || '<derived>'
+
+        "Unpause pipeline #{pipeline} for target #{target}"
+      end
 
       parameter :target, :required => true
       parameter :pipeline, :required => true
 
-      parameter :ensure_task, :default => :'fly:ensure'
+      parameter :ensure_task_name, :default => :'fly:ensure'
 
-      def process_arguments(args)
-        self.name = args[0] if args[0]
-      end
-
-      def define
-        pipeline_name = pipeline.respond_to?(:call) ? "<derived>" : pipeline
-        target_name = target.respond_to?(:call) ? "<derived>" : target
-
-        desc "Unpause pipeline #{pipeline_name} for target #{target_name}"
-        task name, argument_names => [ensure_task] do |_, args|
-          derived_target = target.respond_to?(:call) ?
-                               target.call(*[args].slice(0, target.arity)) :
-                               target
-          derived_pipeline = pipeline.respond_to?(:call) ?
-                                 pipeline.call(*[args].slice(0, pipeline.arity)) :
-                                 pipeline
-
-          puts "Unpausing pipeline #{derived_pipeline} for target #{derived_target}..."
-          RubyFly.unpause_pipeline(
-              target: derived_target,
-              pipeline: derived_pipeline)
-        end
+      action do |t|
+        puts "Unpausing pipeline #{t.pipeline} for target #{t.target}..."
+        RubyFly.unpause_pipeline(
+            target: t.target,
+            pipeline: t.pipeline)
       end
     end
   end

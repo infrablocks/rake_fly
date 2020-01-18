@@ -10,10 +10,9 @@ describe RakeFly::Tasks::GetPipeline do
     end
   end
 
-
   it 'adds a get_pipeline task in the namespace in which it is created' do
     namespace :something do
-      subject.new do |t|
+      subject.define do |t|
         t.target = 'supercorp-ci'
         t.pipeline = 'supercorp-something'
       end
@@ -24,19 +23,18 @@ describe RakeFly::Tasks::GetPipeline do
 
   it 'gives the get_pipeline task a description' do
     namespace :something do
-      subject.new do |t|
-        t.target = 'supercorp-ci'
-        t.pipeline = 'supercorp-something'
-      end
+      subject.define(
+          target: 'supercorp-ci',
+          pipeline: 'supercorp-something')
     end
 
-    expect(rake.last_description)
+    expect(Rake::Task["something:get_pipeline"].full_comment)
         .to(eq('Get pipeline supercorp-something for target supercorp-ci'))
   end
 
   it 'allows the task name to be overridden' do
     namespace :pipeline do
-      subject.new(:get) do |t|
+      subject.define(name: :get) do |t|
         t.target = 'supercorp-ci'
         t.pipeline = 'supercorp-something'
       end
@@ -47,14 +45,14 @@ describe RakeFly::Tasks::GetPipeline do
 
   it 'allows multiple get_pipeline tasks to be declared' do
     namespace :something1 do
-      subject.new do |t|
+      subject.define do |t|
         t.target = 'supercorp-ci'
         t.pipeline = 'supercorp-something1'
       end
     end
 
     namespace :something2 do
-      subject.new do |t|
+      subject.define do |t|
         t.target = 'supercorp-ci'
         t.pipeline = 'supercorp-something2'
       end
@@ -69,7 +67,7 @@ describe RakeFly::Tasks::GetPipeline do
 
   it 'depends on the fly:ensure task by default' do
     namespace :something do
-      subject.new do |t|
+      subject.define do |t|
         t.target = 'supercorp-ci'
         t.pipeline = 'supercorp-something2'
       end
@@ -87,11 +85,9 @@ describe RakeFly::Tasks::GetPipeline do
     end
 
     namespace :something do
-      subject.new do |t|
+      subject.define(ensure_task_name: 'tools:fly:ensure') do |t|
         t.target = 'supercorp-ci'
         t.pipeline = 'supercorp-something2'
-
-        t.ensure_task = 'tools:fly:ensure'
       end
     end
 
@@ -109,9 +105,7 @@ describe RakeFly::Tasks::GetPipeline do
     end
 
     namespace :something do
-      subject.new do |t|
-        t.argument_names = argument_names
-
+      subject.define(argument_names: argument_names) do |t|
         t.target = 'supercorp-ci'
         t.pipeline = 'supercorp-something2'
       end
@@ -125,7 +119,7 @@ describe RakeFly::Tasks::GetPipeline do
     target = 'supercorp-ci'
     pipeline = 'supercorp-something'
 
-    subject.new do |t|
+    subject.define do |t|
       t.target = target
       t.pipeline = pipeline
     end
@@ -135,9 +129,9 @@ describe RakeFly::Tasks::GetPipeline do
 
     expect(RubyFly)
         .to(receive(:get_pipeline)
-                .with(hash_including(
-                          target: target,
-                          pipeline: pipeline)))
+            .with(hash_including(
+                target: target,
+                pipeline: pipeline)))
 
     Rake::Task['get_pipeline'].invoke
   end
@@ -146,9 +140,8 @@ describe RakeFly::Tasks::GetPipeline do
     target = 'supercorp-ci'
     pipeline = 'supercorp-something'
 
-    subject.new do |t|
-      t.argument_names = [:target]
-      t.target = lambda { |args| args.target }
+    subject.define(argument_names: [:target]) do |t, args|
+      t.target = args.target
       t.pipeline = pipeline
     end
 
@@ -157,9 +150,9 @@ describe RakeFly::Tasks::GetPipeline do
 
     expect(RubyFly)
         .to(receive(:get_pipeline)
-                .with(hash_including(
-                          target: target,
-                          pipeline: pipeline)))
+            .with(hash_including(
+                target: target,
+                pipeline: pipeline)))
 
     Rake::Task['get_pipeline'].invoke(target)
   end
@@ -168,10 +161,9 @@ describe RakeFly::Tasks::GetPipeline do
     target = 'supercorp-ci'
     pipeline = 'supercorp-something'
 
-    subject.new do |t|
-      t.argument_names = [:pipeline]
+    subject.define(argument_names: [:pipeline]) do |t, args|
       t.target = target
-      t.pipeline = lambda { |args| args.pipeline }
+      t.pipeline = args.pipeline
     end
 
     stub_puts
@@ -179,9 +171,9 @@ describe RakeFly::Tasks::GetPipeline do
 
     expect(RubyFly)
         .to(receive(:get_pipeline)
-                .with(hash_including(
-                          target: target,
-                          pipeline: pipeline)))
+            .with(hash_including(
+                target: target,
+                pipeline: pipeline)))
 
     Rake::Task['get_pipeline'].invoke(pipeline)
   end
