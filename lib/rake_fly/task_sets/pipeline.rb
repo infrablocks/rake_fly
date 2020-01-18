@@ -22,11 +22,14 @@ module RakeFly
       parameter :unpause_pipeline_task_name, :default => :unpause_pipeline
       parameter :push_pipeline_task_name, :default => :push_pipeline
 
-      task Tasks::GetPipeline, name: ->(ts) { ts.get_pipeline_task_name }
-      task Tasks::SetPipeline, name: ->(ts) { ts.set_pipeline_task_name }
+      task Tasks::GetPipeline,
+          name: ->(ts) { ts.get_pipeline_task_name }
+      task Tasks::SetPipeline,
+          name: ->(ts) { ts.set_pipeline_task_name }
       task Tasks::UnpausePipeline,
           name: ->(ts) { ts.unpause_pipeline_task_name }
-      task Tasks::PushPipeline, name: ->(ts) { ts.push_pipeline_task_name }
+      task Tasks::PushPipeline,
+          name: ->(ts) { ts.push_pipeline_task_name }
     end
   end
 end
