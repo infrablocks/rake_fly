@@ -2,8 +2,8 @@ PATH
   remote: .
   specs:
     rake_fly (1.1.0)
-      rake_dependencies (~> 1.6)
-      rake_factory (~> 0.11)
+      rake_dependencies (>= 1.6)
+      rake_factory (>= 0.11)
       ruby_fly (~> 0.11)
       semantic (~> 1.6.1)
 
