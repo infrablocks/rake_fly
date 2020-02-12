@@ -5,12 +5,12 @@ module RakeFly
   module Tasks
     class PushPipeline < RakeFactory::Task
       default_name :push_pipeline
-      default_description ->(t) do
+      default_description RakeFactory::DynamicValue.new { |t|
         pipeline = t.pipeline || '<derived>'
         target = t.target || '<derived>'
 
         "Push pipeline #{pipeline} to target #{target}"
-      end
+      }
 
       parameter :target, :required => true
       parameter :pipeline, :required => true

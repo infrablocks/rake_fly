@@ -23,13 +23,21 @@ module RakeFly
       parameter :push_pipeline_task_name, :default => :push_pipeline
 
       task Tasks::GetPipeline,
-          name: ->(ts) { ts.get_pipeline_task_name }
+          name: RakeFactory::DynamicValue.new { |ts|
+            ts.get_pipeline_task_name
+          }
       task Tasks::SetPipeline,
-          name: ->(ts) { ts.set_pipeline_task_name }
+          name: RakeFactory::DynamicValue.new { |ts|
+            ts.set_pipeline_task_name
+          }
       task Tasks::UnpausePipeline,
-          name: ->(ts) { ts.unpause_pipeline_task_name }
+          name: RakeFactory::DynamicValue.new { |ts|
+            ts.unpause_pipeline_task_name
+          }
       task Tasks::PushPipeline,
-          name: ->(ts) { ts.push_pipeline_task_name }
+          name: RakeFactory::DynamicValue.new { |ts|
+            ts.push_pipeline_task_name
+          }
     end
   end
 end

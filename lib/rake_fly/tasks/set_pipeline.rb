@@ -5,13 +5,15 @@ module RakeFly
   module Tasks
     class SetPipeline < RakeFactory::Task
       default_name :set_pipeline
-      default_prerequisites ->(t) { [t.ensure_task_name] }
-      default_description ->(t) do
+      default_prerequisites RakeFactory::DynamicValue.new { |t|
+        [t.ensure_task_name]
+      }
+      default_description RakeFactory::DynamicValue.new { |t|
         pipeline = t.pipeline || '<derived>'
         target = t.target || '<derived>'
 
         "Set pipeline #{pipeline} for target #{target}"
-      end
+      }
 
       parameter :target, :required => true
       parameter :pipeline, :required => true
