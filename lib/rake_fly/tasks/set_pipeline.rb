@@ -16,6 +16,7 @@ module RakeFly
       }
 
       parameter :target, :required => true
+      parameter :team
       parameter :pipeline, :required => true
       parameter :config, :required => true
 
@@ -29,6 +30,7 @@ module RakeFly
         puts "Setting pipeline #{t.pipeline} for target #{t.target}..."
         RubyFly.set_pipeline(
             target: t.target,
+            team: t.team,
             pipeline: t.pipeline,
             config: t.config,
             vars: t.vars,

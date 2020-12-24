@@ -16,6 +16,7 @@ module RakeFly
       }
 
       parameter :target, :required => true
+      parameter :team
       parameter :pipeline, :required => true
 
       parameter :ensure_task_name, :default => :'fly:ensure'
@@ -24,6 +25,7 @@ module RakeFly
         puts "Unpausing pipeline #{t.pipeline} for target #{t.target}..."
         RubyFly.unpause_pipeline(
             target: t.target,
+            team: t.team,
             pipeline: t.pipeline)
       end
     end

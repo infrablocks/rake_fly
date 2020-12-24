@@ -213,6 +213,30 @@ describe RakeFly::Tasks::SetPipeline do
     Rake::Task['set_pipeline'].invoke(config)
   end
 
+  it 'derives team from arguments' do
+    target = 'supercorp-ci'
+    team = 'supercorp-team-1'
+    pipeline = 'supercorp-something'
+    config = 'ci/pipeline.yml'
+
+
+    subject.define(argument_names: [:config]) do |t, args|
+      t.target = target
+      t.team = team
+      t.pipeline = pipeline
+      t.config = args.config
+    end
+
+    stub_puts
+    stub_ruby_fly
+
+    expect(RubyFly)
+        .to(receive(:set_pipeline)
+            .with(hash_including(team: team)))
+
+    Rake::Task['set_pipeline'].invoke(config)
+  end
+
   it 'passes the provided vars when present' do
     target = 'supercorp-ci'
     pipeline = 'supercorp-something'

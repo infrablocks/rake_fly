@@ -185,6 +185,42 @@ describe RakeFly::TaskSets::Pipeline do
       expect(rake_task.creator.non_interactive).to(be_nil)
     end
 
+    it 'passes value for team when available' do
+      target = 'supercorp-ci'
+      team = 'supercorp-team'
+      pipeline = 'supercorp-something'
+      config = 'ci/pipeline.yml'
+
+      namespace :something do
+        subject.define(
+            target: target,
+            team: team,
+            pipeline: pipeline,
+            config: config)
+      end
+
+      rake_task = Rake::Task["something:set_pipeline"]
+
+      expect(rake_task.creator.team).to(eq(team))
+    end
+
+    it 'passes nil for team when not available' do
+      target = 'supercorp-ci'
+      pipeline = 'supercorp-something'
+      config = 'ci/pipeline.yml'
+
+      namespace :something do
+        subject.define(
+            target: target,
+            pipeline: pipeline,
+            config: config)
+      end
+
+      rake_task = Rake::Task["something:set_pipeline"]
+
+      expect(rake_task.creator.team).to(be_nil)
+    end
+
     it 'uses the provided set pipeline task name when present' do
       namespace :something do
         subject.define(
@@ -262,6 +298,42 @@ describe RakeFly::TaskSets::Pipeline do
       rake_task = Rake::Task["something:unpause_pipeline"]
 
       expect(rake_task.arg_names).to(eq(argument_names))
+    end
+
+    it 'passes value for team when available' do
+      target = 'supercorp-ci'
+      team = 'supercorp-team'
+      pipeline = 'supercorp-something'
+      config = 'ci/pipeline.yml'
+
+      namespace :something do
+        subject.define(
+            target: target,
+            team: team,
+            pipeline: pipeline,
+            config: config)
+      end
+
+      rake_task = Rake::Task["something:unpause_pipeline"]
+
+      expect(rake_task.creator.team).to(eq(team))
+    end
+
+    it 'passes nil for team when not available' do
+      target = 'supercorp-ci'
+      pipeline = 'supercorp-something'
+      config = 'ci/pipeline.yml'
+
+      namespace :something do
+        subject.define(
+            target: target,
+            pipeline: pipeline,
+            config: config)
+      end
+
+      rake_task = Rake::Task["something:unpause_pipeline"]
+
+      expect(rake_task.creator.team).to(be_nil)
     end
   end
 

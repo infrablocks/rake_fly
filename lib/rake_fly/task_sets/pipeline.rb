@@ -10,6 +10,7 @@ module RakeFly
       parameter :argument_names, default: []
 
       parameter :target, :required => true
+      parameter :team
       parameter :pipeline, :required => true
       parameter :config, :required => true
 

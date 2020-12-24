@@ -157,6 +157,27 @@ describe RakeFly::Tasks::UnpausePipeline do
     Rake::Task['unpause_pipeline'].invoke(target)
   end
 
+  it 'derives the team from arguments' do
+    target = 'supercorp-ci'
+    team = 'supercorp-team'
+    pipeline = 'supercorp-something'
+
+    subject.define(argument_names: [:target]) do |t, args|
+      t.target = args.target
+      t.team = team
+      t.pipeline = pipeline
+    end
+
+    stub_puts
+    stub_ruby_fly
+
+    expect(RubyFly)
+        .to(receive(:unpause_pipeline)
+                .with(hash_including(team: team)))
+
+    Rake::Task['unpause_pipeline'].invoke(target)
+  end
+
   it 'derives pipeline from arguments' do
     target = 'supercorp-ci'
     pipeline = 'supercorp-something'
