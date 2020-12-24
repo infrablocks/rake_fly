@@ -1,3 +1,3 @@
 module RakeFly
-  VERSION = '1.14.0.pre.1'
+  VERSION = '1.15.0'
 end
