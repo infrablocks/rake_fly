@@ -1,7 +1,7 @@
 require 'spec_helper'
 require 'fileutils'
 
-describe RakeFly::Tasks::UnpausePipeline do
+describe RakeFly::Tasks::Pipeline::Get do
   include_context :rake
 
   before(:each) do
@@ -10,40 +10,40 @@ describe RakeFly::Tasks::UnpausePipeline do
     end
   end
 
-  it 'adds a unpause_pipeline task in the namespace in which it is created' do
-    namespace :something do
+  it 'adds a get task in the namespace in which it is created' do
+    namespace :pipeline do
       subject.define do |t|
         t.target = 'supercorp-ci'
         t.pipeline = 'supercorp-something'
       end
     end
 
-    expect(Rake::Task['something:unpause_pipeline']).not_to be_nil
+    expect(Rake::Task['pipeline:get']).not_to be_nil
   end
 
-  it 'gives the unpause_pipeline task a description' do
-    namespace :something do
+  it 'gives the get task a description' do
+    namespace :pipeline do
       subject.define(
           target: 'supercorp-ci',
           pipeline: 'supercorp-something')
     end
 
-    expect(Rake::Task["something:unpause_pipeline"].full_comment)
-        .to(eq('Unpause pipeline supercorp-something for target supercorp-ci'))
+    expect(Rake::Task["pipeline:get"].full_comment)
+        .to(eq('Get pipeline supercorp-something for target supercorp-ci'))
   end
 
   it 'allows the task name to be overridden' do
     namespace :pipeline do
-      subject.define(name: :unpause) do |t|
+      subject.define(name: :fetch) do |t|
         t.target = 'supercorp-ci'
         t.pipeline = 'supercorp-something'
       end
     end
 
-    expect(Rake::Task['pipeline:unpause']).not_to be_nil
+    expect(Rake::Task['pipeline:fetch']).not_to be_nil
   end
 
-  it 'allows multiple unpause_pipeline tasks to be declared' do
+  it 'allows multiple get tasks to be declared' do
     namespace :something1 do
       subject.define do |t|
         t.target = 'supercorp-ci'
@@ -58,11 +58,11 @@ describe RakeFly::Tasks::UnpausePipeline do
       end
     end
 
-    something1_unpause_pipeline = Rake::Task['something1:unpause_pipeline']
-    something2_unpause_pipeline = Rake::Task['something2:unpause_pipeline']
+    something1_get_pipeline = Rake::Task['something1:get']
+    something2_get_pipeline = Rake::Task['something2:get']
 
-    expect(something1_unpause_pipeline).not_to be_nil
-    expect(something2_unpause_pipeline).not_to be_nil
+    expect(something1_get_pipeline).not_to be_nil
+    expect(something2_get_pipeline).not_to be_nil
   end
 
   it 'depends on the fly:ensure task by default' do
@@ -73,7 +73,7 @@ describe RakeFly::Tasks::UnpausePipeline do
       end
     end
 
-    expect(Rake::Task['something:unpause_pipeline'].prerequisite_tasks)
+    expect(Rake::Task['something:get'].prerequisite_tasks)
         .to(include(Rake::Task['fly:ensure']))
   end
 
@@ -91,7 +91,7 @@ describe RakeFly::Tasks::UnpausePipeline do
       end
     end
 
-    expect(Rake::Task['something:unpause_pipeline'].prerequisite_tasks)
+    expect(Rake::Task['something:get'].prerequisite_tasks)
         .to(include(Rake::Task['tools:fly:ensure']))
   end
 
@@ -111,11 +111,11 @@ describe RakeFly::Tasks::UnpausePipeline do
       end
     end
 
-    expect(Rake::Task['something:unpause_pipeline'].arg_names)
+    expect(Rake::Task['something:get'].arg_names)
         .to(eq(argument_names))
   end
 
-  it 'unpauses the specific pipeline on the specified target' do
+  it 'gets the specific pipeline from the specified target' do
     target = 'supercorp-ci'
     pipeline = 'supercorp-something'
 
@@ -128,15 +128,15 @@ describe RakeFly::Tasks::UnpausePipeline do
     stub_ruby_fly
 
     expect(RubyFly)
-        .to(receive(:unpause_pipeline)
-                .with(hash_including(
-                          target: target,
-                          pipeline: pipeline)))
+        .to(receive(:get_pipeline)
+            .with(hash_including(
+                target: target,
+                pipeline: pipeline)))
 
-    Rake::Task['unpause_pipeline'].invoke
+    Rake::Task['get'].invoke
   end
 
-  it 'derives the target from arguments' do
+  it 'uses the provided target when supplied' do
     target = 'supercorp-ci'
     pipeline = 'supercorp-something'
 
@@ -149,36 +149,15 @@ describe RakeFly::Tasks::UnpausePipeline do
     stub_ruby_fly
 
     expect(RubyFly)
-        .to(receive(:unpause_pipeline)
-                .with(hash_including(
-                          target: target,
-                          pipeline: pipeline)))
+        .to(receive(:get_pipeline)
+            .with(hash_including(
+                target: target,
+                pipeline: pipeline)))
 
-    Rake::Task['unpause_pipeline'].invoke(target)
+    Rake::Task['get'].invoke(target)
   end
 
-  it 'derives the team from arguments' do
-    target = 'supercorp-ci'
-    team = 'supercorp-team'
-    pipeline = 'supercorp-something'
-
-    subject.define(argument_names: [:target]) do |t, args|
-      t.target = args.target
-      t.team = team
-      t.pipeline = pipeline
-    end
-
-    stub_puts
-    stub_ruby_fly
-
-    expect(RubyFly)
-        .to(receive(:unpause_pipeline)
-                .with(hash_including(team: team)))
-
-    Rake::Task['unpause_pipeline'].invoke(target)
-  end
-
-  it 'derives pipeline from arguments' do
+  it 'uses the provided pipeline when supplied' do
     target = 'supercorp-ci'
     pipeline = 'supercorp-something'
 
@@ -191,12 +170,12 @@ describe RakeFly::Tasks::UnpausePipeline do
     stub_ruby_fly
 
     expect(RubyFly)
-        .to(receive(:unpause_pipeline)
-                .with(hash_including(
-                          target: target,
-                          pipeline: pipeline)))
+        .to(receive(:get_pipeline)
+            .with(hash_including(
+                target: target,
+                pipeline: pipeline)))
 
-    Rake::Task['unpause_pipeline'].invoke(pipeline)
+    Rake::Task['get'].invoke(pipeline)
   end
 
   def stub_puts
@@ -204,6 +183,6 @@ describe RakeFly::Tasks::UnpausePipeline do
   end
 
   def stub_ruby_fly
-    allow(RubyFly).to(receive(:unpause_pipeline))
+    allow(RubyFly).to(receive(:get_pipeline))
   end
 end

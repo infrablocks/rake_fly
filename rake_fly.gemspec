@@ -26,7 +26,7 @@ Gem::Specification.new do |spec|
   spec.required_ruby_version = '>= 2.6'
 
   spec.add_dependency 'rake_dependencies', '~> 2', '< 3'
-  spec.add_dependency 'rake_factory', '>= 0.23', '< 1'
+  spec.add_dependency 'rake_factory', '>= 0.29', '< 1'
   spec.add_dependency 'ruby_fly', '>= 0.19'
   spec.add_dependency 'semantic', '~> 1.6.1'
 

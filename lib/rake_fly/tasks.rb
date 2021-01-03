@@ -1,4 +1,4 @@
-require_relative 'tasks/get_pipeline'
-require_relative 'tasks/set_pipeline'
-require_relative 'tasks/unpause_pipeline'
-require_relative 'tasks/push_pipeline'
+require_relative 'tasks/pipeline/get'
+require_relative 'tasks/pipeline/set'
+require_relative 'tasks/pipeline/unpause'
+require_relative 'tasks/pipeline/push'

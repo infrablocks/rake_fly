@@ -1,7 +1,7 @@
 require 'spec_helper'
 require 'fileutils'
 
-describe RakeFly::Tasks::SetPipeline do
+describe RakeFly::Tasks::Pipeline::Set do
   include_context :rake
 
   before(:each) do
@@ -10,8 +10,8 @@ describe RakeFly::Tasks::SetPipeline do
     end
   end
 
-  it 'adds a set_pipeline task in the namespace in which it is created' do
-    namespace :something do
+  it 'adds a set task in the namespace in which it is created' do
+    namespace :pipeline do
       subject.define do |t|
         t.target = 'supercorp-ci'
         t.pipeline = 'supercorp-something'
@@ -19,11 +19,11 @@ describe RakeFly::Tasks::SetPipeline do
       end
     end
 
-    expect(Rake::Task['something:set_pipeline']).not_to be_nil
+    expect(Rake::Task['pipeline:set']).not_to be_nil
   end
 
-  it 'gives the set_pipeline task a description' do
-    namespace :something do
+  it 'gives the set task a description' do
+    namespace :pipeline do
       subject.define(
           target: 'supercorp-ci',
           pipeline: 'supercorp-something') do |t|
@@ -31,7 +31,7 @@ describe RakeFly::Tasks::SetPipeline do
       end
     end
 
-    expect(Rake::Task["something:set_pipeline"].full_comment)
+    expect(Rake::Task["pipeline:set"].full_comment)
         .to(eq('Set pipeline supercorp-something for target supercorp-ci'))
   end
 
@@ -47,7 +47,7 @@ describe RakeFly::Tasks::SetPipeline do
     expect(Rake::Task['pipeline:set']).not_to be_nil
   end
 
-  it 'allows multiple set_pipeline tasks to be declared' do
+  it 'allows multiple set tasks to be declared' do
     namespace :something1 do
       subject.define do |t|
         t.target = 'supercorp-ci'
@@ -64,15 +64,15 @@ describe RakeFly::Tasks::SetPipeline do
       end
     end
 
-    something1_set_pipeline = Rake::Task['something1:set_pipeline']
-    something2_set_pipeline = Rake::Task['something2:set_pipeline']
+    something1_set_pipeline = Rake::Task['something1:set']
+    something2_set_pipeline = Rake::Task['something2:set']
 
     expect(something1_set_pipeline).not_to be_nil
     expect(something2_set_pipeline).not_to be_nil
   end
 
   it 'depends on the fly:ensure task by default' do
-    namespace :something do
+    namespace :pipeline do
       subject.define do |t|
         t.target = 'supercorp-ci'
         t.pipeline = 'supercorp-something2'
@@ -80,7 +80,7 @@ describe RakeFly::Tasks::SetPipeline do
       end
     end
 
-    expect(Rake::Task['something:set_pipeline'].prerequisite_tasks)
+    expect(Rake::Task['pipeline:set'].prerequisite_tasks)
         .to(include(Rake::Task['fly:ensure']))
   end
 
@@ -91,7 +91,7 @@ describe RakeFly::Tasks::SetPipeline do
       end
     end
 
-    namespace :something do
+    namespace :pipeline do
       subject.define(ensure_task_name: 'tools:fly:ensure') do |t|
         t.target = 'supercorp-ci'
         t.pipeline = 'supercorp-something2'
@@ -99,7 +99,7 @@ describe RakeFly::Tasks::SetPipeline do
       end
     end
 
-    expect(Rake::Task['something:set_pipeline'].prerequisite_tasks)
+    expect(Rake::Task['pipeline:set'].prerequisite_tasks)
         .to(include(Rake::Task['tools:fly:ensure']))
   end
 
@@ -112,7 +112,7 @@ describe RakeFly::Tasks::SetPipeline do
       end
     end
 
-    namespace :something do
+    namespace :pipeline do
       subject.define(argument_names: argument_names) do |t|
         t.target = 'supercorp-ci'
         t.pipeline = 'supercorp-something2'
@@ -120,7 +120,7 @@ describe RakeFly::Tasks::SetPipeline do
       end
     end
 
-    expect(Rake::Task['something:set_pipeline'].arg_names)
+    expect(Rake::Task['pipeline:set'].arg_names)
         .to(eq(argument_names))
   end
 
@@ -145,7 +145,7 @@ describe RakeFly::Tasks::SetPipeline do
                 pipeline: pipeline,
                 config: config)))
 
-    Rake::Task['set_pipeline'].invoke
+    Rake::Task['set'].invoke
   end
 
   it 'derives target from arguments' do
@@ -166,7 +166,7 @@ describe RakeFly::Tasks::SetPipeline do
         .to(receive(:set_pipeline)
             .with(hash_including(target: target)))
 
-    Rake::Task['set_pipeline'].invoke(target)
+    Rake::Task['set'].invoke(target)
   end
 
   it 'derives pipeline from arguments' do
@@ -189,7 +189,7 @@ describe RakeFly::Tasks::SetPipeline do
                 target: target,
                 pipeline: pipeline)))
 
-    Rake::Task['set_pipeline'].invoke(pipeline)
+    Rake::Task['set'].invoke(pipeline)
   end
 
   it 'derives config from arguments' do
@@ -210,7 +210,7 @@ describe RakeFly::Tasks::SetPipeline do
         .to(receive(:set_pipeline)
             .with(hash_including(config: config)))
 
-    Rake::Task['set_pipeline'].invoke(config)
+    Rake::Task['set'].invoke(config)
   end
 
   it 'derives team from arguments' do
@@ -234,7 +234,7 @@ describe RakeFly::Tasks::SetPipeline do
         .to(receive(:set_pipeline)
             .with(hash_including(team: team)))
 
-    Rake::Task['set_pipeline'].invoke(config)
+    Rake::Task['set'].invoke(config)
   end
 
   it 'passes the provided vars when present' do
@@ -260,7 +260,7 @@ describe RakeFly::Tasks::SetPipeline do
         .to(receive(:set_pipeline)
             .with(hash_including(vars: vars)))
 
-    Rake::Task['set_pipeline'].invoke
+    Rake::Task['set'].invoke
   end
 
   it 'passes nil for vars when not present' do
@@ -281,7 +281,7 @@ describe RakeFly::Tasks::SetPipeline do
         .to(receive(:set_pipeline)
             .with(hash_including(vars: nil)))
 
-    Rake::Task['set_pipeline'].invoke
+    Rake::Task['set'].invoke
   end
 
   it 'derives vars from arguments' do
@@ -306,7 +306,7 @@ describe RakeFly::Tasks::SetPipeline do
             .with(hash_including(
                 vars: {the_var: important_var})))
 
-    Rake::Task['set_pipeline'].invoke(important_var)
+    Rake::Task['set'].invoke(important_var)
   end
 
   it 'passes the provided var files when present' do
@@ -332,7 +332,7 @@ describe RakeFly::Tasks::SetPipeline do
         .to(receive(:set_pipeline)
             .with(hash_including(var_files: var_files)))
 
-    Rake::Task['set_pipeline'].invoke
+    Rake::Task['set'].invoke
   end
 
   it 'passes nil for var files when not present' do
@@ -353,7 +353,7 @@ describe RakeFly::Tasks::SetPipeline do
         .to(receive(:set_pipeline)
             .with(hash_including(var_files: nil)))
 
-    Rake::Task['set_pipeline'].invoke
+    Rake::Task['set'].invoke
   end
 
   it 'derives var files from arguments' do
@@ -378,7 +378,7 @@ describe RakeFly::Tasks::SetPipeline do
             .with(hash_including(
                 var_files: [important_var_file])))
 
-    Rake::Task['set_pipeline'].invoke(important_var_file)
+    Rake::Task['set'].invoke(important_var_file)
   end
 
   it 'passes the provided value for non-interactive when present' do
@@ -400,7 +400,7 @@ describe RakeFly::Tasks::SetPipeline do
         .to(receive(:set_pipeline)
             .with(hash_including(non_interactive: true)))
 
-    Rake::Task['set_pipeline'].invoke
+    Rake::Task['set'].invoke
   end
 
   it 'passes nil for non-interactive when not present' do
@@ -421,7 +421,7 @@ describe RakeFly::Tasks::SetPipeline do
         .to(receive(:set_pipeline)
             .with(hash_including(non_interactive: nil)))
 
-    Rake::Task['set_pipeline'].invoke
+    Rake::Task['set'].invoke
   end
 
   def stub_puts
