@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    rake_fly (2.0.0.pre.pre.0)
+    rake_fly (2.0.0.pre.pre.1)
       rake_dependencies (~> 2, < 3)
       rake_factory (>= 0.29, < 1)
       ruby_fly (>= 0.19)
