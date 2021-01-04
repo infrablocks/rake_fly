@@ -1,10 +1,14 @@
 require 'simplecov'
 SimpleCov.start
 
+require 'i18n'
+I18n.eager_load!
+
 require 'bundler/setup'
 
 require 'rake'
 require 'support/shared_contexts/rake'
+require 'support/build'
 
 require 'rake_fly'
 

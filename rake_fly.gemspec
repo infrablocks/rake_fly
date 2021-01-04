@@ -27,7 +27,8 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency 'rake_dependencies', '~> 2', '< 3'
   spec.add_dependency 'rake_factory', '>= 0.29', '< 1'
-  spec.add_dependency 'ruby_fly', '>= 0.19'
+  spec.add_dependency 'ruby_fly', '>= 0.23'
+  spec.add_dependency 'concourse.rb', '0.3.0.pre.1'
   spec.add_dependency 'semantic', '~> 1.6.1'
 
   spec.add_development_dependency 'bundler', '~> 2.1'
@@ -40,5 +41,8 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'gem-release', '~> 2.0'
   spec.add_development_dependency 'activesupport', '>= 4'
   spec.add_development_dependency 'fakefs', '~> 0.18'
+  spec.add_development_dependency 'jwt', '~> 2.2'
+  spec.add_development_dependency 'openssl', '~> 2.2'
+  spec.add_development_dependency 'faker', '~> 2.15'
   spec.add_development_dependency 'simplecov', '~> 0.16'
 end

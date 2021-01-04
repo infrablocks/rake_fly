@@ -5,7 +5,7 @@ RSpec.describe RakeFly do
     expect(RakeFly::VERSION).not_to be nil
   end
 
-  it 'includes all the RubyTerraform methods' do
+  it 'includes all the RubyFly methods' do
     expect(RakeFly)
         .to(respond_to(
             :get_pipeline, :set_pipeline, :unpause_pipeline, :version))
