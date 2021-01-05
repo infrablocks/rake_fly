@@ -8,6 +8,8 @@ require_relative '../tasks/pipeline/push'
 module RakeFly
   module TaskSets
     class Pipeline < RakeFactory::TaskSet
+      prepend RakeFactory::Namespaceable
+
       parameter :argument_names, default: []
 
       parameter :target, :required => true

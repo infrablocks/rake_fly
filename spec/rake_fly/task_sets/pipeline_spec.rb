@@ -3,6 +3,40 @@ require 'spec_helper'
 describe RakeFly::TaskSets::Pipeline do
   include_context :rake
 
+  it 'adds all pipeline tasks in the provided namespace ' +
+      'when supplied' do
+    target = 'supercorp-ci'
+    pipeline = 'supercorp-something'
+
+    subject.define(
+        namespace: :pipeline,
+        target: target,
+        pipeline: pipeline)
+
+    expect(Rake::Task.task_defined?('pipeline:get'))
+        .to(be(true))
+    expect(Rake::Task.task_defined?('pipeline:set'))
+        .to(be(true))
+    expect(Rake::Task.task_defined?('pipeline:unpause'))
+        .to(be(true))
+    expect(Rake::Task.task_defined?('pipeline:push'))
+        .to(be(true))
+  end
+
+  it 'adds all pipeline tasks in the root namespace when none supplied' do
+    target = 'supercorp-ci'
+    pipeline = 'supercorp-something'
+
+    subject.define(
+        target: target,
+        pipeline: pipeline)
+
+    expect(Rake::Task.task_defined?('get')).to(be(true))
+    expect(Rake::Task.task_defined?('set')).to(be(true))
+    expect(Rake::Task.task_defined?('unpause')).to(be(true))
+    expect(Rake::Task.task_defined?('push')).to(be(true))
+  end
+
   context 'get task' do
     it 'configures with target and pipeline' do
       target = 'supercorp-ci'
