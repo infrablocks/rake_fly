@@ -180,6 +180,8 @@ describe RakeFly::Tasks::Authentication::Login do
       t.target = 'supercorp-ci'
     end
 
+    stub_puts
+
     expect {
       Rake::Task['authentication:login'].invoke
     }.to raise_error(RakeFactory::RequiredParameterUnset)
@@ -189,6 +191,8 @@ describe RakeFly::Tasks::Authentication::Login do
     define_task do |t|
       t.concourse_url = "https://concourse.example.com"
     end
+
+    stub_puts
 
     expect {
       Rake::Task['authentication:login'].invoke
@@ -226,6 +230,8 @@ describe RakeFly::Tasks::Authentication::Login do
         t.password = password
         t.home_directory = home_directory
       end
+
+      stub_puts
 
       concourse_client = double('concourse client')
       skymarshal_client = double('skymarshal client')
@@ -291,9 +297,55 @@ describe RakeFly::Tasks::Authentication::Login do
         t.target = 'supercorp-ci'
       end
 
+      stub_puts
+
       expect(Rake::Task['authentication:login'].prerequisite_tasks)
           .to(include(Rake::Task['tools:fly:ensure']))
     end
+
+    it 'logs in via fly' do
+      concourse_url = "https://concourse.example.com"
+      team_name = 'supercorp-team'
+      target_name = 'supercorp-ci'
+      username = 'some-user'
+      password = 'super-secure'
+      home_directory = '/tmp/fly'
+
+      define_task(
+          backend: RakeFly::Tasks::Authentication::Login::FlyBackend) do |t|
+        t.concourse_url = concourse_url
+        t.team = team_name
+        t.target = target_name
+        t.username = username
+        t.password = password
+        t.home_directory = home_directory
+      end
+
+      stub_puts
+      stub_ruby_fly
+
+      expect(RubyFly)
+          .to(receive(:login)
+              .with(hash_including(
+                  target: target_name,
+                  concourse_url: concourse_url,
+                  username: username,
+                  password: password,
+                  team: team_name,
+                  environment: {
+                      "HOME" => home_directory
+                  })))
+
+      Rake::Task['authentication:login'].invoke
+    end
+  end
+
+  def stub_puts
+    allow_any_instance_of(Kernel).to(receive(:puts))
+  end
+
+  def stub_ruby_fly
+    allow(RubyFly).to(receive(:login))
   end
 end
 

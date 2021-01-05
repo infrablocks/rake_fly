@@ -11,8 +11,16 @@ module RakeFly
             [task.ensure_task_name]
           end
 
-          def execute(_)
-
+          def execute(task)
+            RubyFly.login(
+                target: task.target,
+                concourse_url: task.concourse_url,
+                username: task.username,
+                password: task.password,
+                team: task.team,
+                environment: {
+                    "HOME" => task.home_directory
+                })
           end
         end
 
