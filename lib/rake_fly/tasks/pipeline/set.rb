@@ -25,6 +25,9 @@ module RakeFly
         parameter :var_files
         parameter :non_interactive
 
+        parameter :home_directory,
+            default: RakeFactory::DynamicValue.new { |_| ENV['HOME'] }
+
         parameter :ensure_task_name, :default => :'fly:ensure'
 
         action do |t|
@@ -36,7 +39,10 @@ module RakeFly
               config: t.config,
               vars: t.vars,
               var_files: t.var_files,
-              non_interactive: t.non_interactive)
+              non_interactive: t.non_interactive,
+              environment: {
+                  "HOME" => t.home_directory
+              })
         end
       end
     end

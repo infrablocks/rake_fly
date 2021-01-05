@@ -20,6 +20,9 @@ module RakeFly
         parameter :team
         parameter :pipeline, :required => true
 
+        parameter :home_directory,
+            default: RakeFactory::DynamicValue.new { |_| ENV['HOME'] }
+
         parameter :ensure_task_name, :default => :'fly:ensure'
 
         action do |t|
@@ -27,7 +30,10 @@ module RakeFly
           RubyFly.unpause_pipeline(
               target: t.target,
               team: t.team,
-              pipeline: t.pipeline)
+              pipeline: t.pipeline,
+              environment: {
+                  "HOME" => t.home_directory
+              })
         end
       end
     end

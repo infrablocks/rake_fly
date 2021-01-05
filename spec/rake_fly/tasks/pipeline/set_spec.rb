@@ -124,15 +124,44 @@ describe RakeFly::Tasks::Pipeline::Set do
         .to(eq(argument_names))
   end
 
+  it 'defaults to a home directory of ENV["HOME"]' do
+    ENV["HOME"] = "/some/home/directory"
+
+    subject.define(
+        target: 'supercorp-ci',
+        pipeline: 'supercorp-something',
+        config: 'ci/pipeline.yml')
+
+    rake_task = Rake::Task['set']
+    test_task = rake_task.creator
+
+    expect(test_task.home_directory).to(eq('/some/home/directory'))
+  end
+
+  it 'uses the provided home directory' do
+    subject.define(
+        target: 'supercorp-ci',
+        pipeline: 'supercorp-something',
+        config: 'ci/pipeline.yml',
+        home_directory: 'build/fly')
+
+    rake_task = Rake::Task['set']
+    test_task = rake_task.creator
+
+    expect(test_task.home_directory).to(eq('build/fly'))
+  end
+
   it 'sets the specific pipeline and config for the specified target' do
     target = 'supercorp-ci'
     pipeline = 'supercorp-something'
     config = 'ci/pipeline.yml'
+    home_directory = 'build/fly'
 
     subject.define do |t|
       t.target = target
       t.pipeline = pipeline
       t.config = config
+      t.home_directory = home_directory
     end
 
     stub_puts
@@ -143,7 +172,10 @@ describe RakeFly::Tasks::Pipeline::Set do
             .with(hash_including(
                 target: target,
                 pipeline: pipeline,
-                config: config)))
+                config: config,
+                environment: {
+                    "HOME" => home_directory
+                })))
 
     Rake::Task['set'].invoke
   end
@@ -152,32 +184,13 @@ describe RakeFly::Tasks::Pipeline::Set do
     target = 'supercorp-ci'
     pipeline = 'supercorp-something'
     config = 'ci/pipeline.yml'
+    home_directory = 'build/fly'
 
     subject.define(argument_names: [:target]) do |t, args|
       t.target = args.target
       t.pipeline = pipeline
       t.config = config
-    end
-
-    stub_puts
-    stub_ruby_fly
-
-    expect(RubyFly)
-        .to(receive(:set_pipeline)
-            .with(hash_including(target: target)))
-
-    Rake::Task['set'].invoke(target)
-  end
-
-  it 'derives pipeline from arguments' do
-    target = 'supercorp-ci'
-    pipeline = 'supercorp-something'
-    config = 'ci/pipeline.yml'
-
-    subject.define(argument_names: [:pipeline]) do |t, args|
-      t.target = target
-      t.pipeline = args.pipeline
-      t.config = config
+      t.home_directory = home_directory
     end
 
     stub_puts
@@ -187,7 +200,37 @@ describe RakeFly::Tasks::Pipeline::Set do
         .to(receive(:set_pipeline)
             .with(hash_including(
                 target: target,
-                pipeline: pipeline)))
+                environment: {
+                    "HOME" => home_directory
+                })))
+
+    Rake::Task['set'].invoke(target)
+  end
+
+  it 'derives pipeline from arguments' do
+    target = 'supercorp-ci'
+    pipeline = 'supercorp-something'
+    config = 'ci/pipeline.yml'
+    home_directory = 'build/fly'
+
+    subject.define(argument_names: [:pipeline]) do |t, args|
+      t.target = target
+      t.pipeline = args.pipeline
+      t.config = config
+      t.home_directory = home_directory
+    end
+
+    stub_puts
+    stub_ruby_fly
+
+    expect(RubyFly)
+        .to(receive(:set_pipeline)
+            .with(hash_including(
+                target: target,
+                pipeline: pipeline,
+                environment: {
+                    "HOME" => home_directory
+                })))
 
     Rake::Task['set'].invoke(pipeline)
   end
@@ -196,11 +239,13 @@ describe RakeFly::Tasks::Pipeline::Set do
     target = 'supercorp-ci'
     pipeline = 'supercorp-something'
     config = 'ci/pipeline.yml'
+    home_directory = 'build/fly'
 
     subject.define(argument_names: [:config]) do |t, args|
       t.target = target
       t.pipeline = pipeline
       t.config = args.config
+      t.home_directory = home_directory
     end
 
     stub_puts
@@ -208,7 +253,11 @@ describe RakeFly::Tasks::Pipeline::Set do
 
     expect(RubyFly)
         .to(receive(:set_pipeline)
-            .with(hash_including(config: config)))
+            .with(hash_including(
+                config: config,
+                environment: {
+                    "HOME" => home_directory
+                })))
 
     Rake::Task['set'].invoke(config)
   end
@@ -218,13 +267,14 @@ describe RakeFly::Tasks::Pipeline::Set do
     team = 'supercorp-team-1'
     pipeline = 'supercorp-something'
     config = 'ci/pipeline.yml'
-
+    home_directory = 'build/fly'
 
     subject.define(argument_names: [:config]) do |t, args|
       t.target = target
       t.team = team
       t.pipeline = pipeline
       t.config = args.config
+      t.home_directory = home_directory
     end
 
     stub_puts
@@ -232,7 +282,11 @@ describe RakeFly::Tasks::Pipeline::Set do
 
     expect(RubyFly)
         .to(receive(:set_pipeline)
-            .with(hash_including(team: team)))
+            .with(hash_including(
+                team: team,
+                environment: {
+                    "HOME" => home_directory
+                })))
 
     Rake::Task['set'].invoke(config)
   end

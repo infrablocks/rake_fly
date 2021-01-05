@@ -115,13 +115,40 @@ describe RakeFly::Tasks::Pipeline::Unpause do
         .to(eq(argument_names))
   end
 
+  it 'defaults to a home directory of ENV["HOME"]' do
+    ENV["HOME"] = "/some/home/directory"
+
+    subject.define(
+        target: 'supercorp-ci',
+        pipeline: 'supercorp-something')
+
+    rake_task = Rake::Task['unpause']
+    test_task = rake_task.creator
+
+    expect(test_task.home_directory).to(eq('/some/home/directory'))
+  end
+
+  it 'uses the provided home directory' do
+    subject.define(
+        target: 'supercorp-ci',
+        pipeline: 'supercorp-something',
+        home_directory: 'build/fly')
+
+    rake_task = Rake::Task['unpause']
+    test_task = rake_task.creator
+
+    expect(test_task.home_directory).to(eq('build/fly'))
+  end
+
   it 'unpauses the specific pipeline on the specified target' do
     target = 'supercorp-ci'
     pipeline = 'supercorp-something'
+    home_directory = 'build/fly'
 
     subject.define do |t|
       t.target = target
       t.pipeline = pipeline
+      t.home_directory = home_directory
     end
 
     stub_puts
@@ -129,9 +156,12 @@ describe RakeFly::Tasks::Pipeline::Unpause do
 
     expect(RubyFly)
         .to(receive(:unpause_pipeline)
-                .with(hash_including(
-                          target: target,
-                          pipeline: pipeline)))
+            .with(hash_including(
+                target: target,
+                pipeline: pipeline,
+                environment: {
+                    "HOME" => home_directory
+                })))
 
     Rake::Task['unpause'].invoke
   end
@@ -139,10 +169,12 @@ describe RakeFly::Tasks::Pipeline::Unpause do
   it 'derives the target from arguments' do
     target = 'supercorp-ci'
     pipeline = 'supercorp-something'
+    home_directory = 'build/fly'
 
     subject.define(argument_names: [:target]) do |t, args|
       t.target = args.target
       t.pipeline = pipeline
+      t.home_directory = home_directory
     end
 
     stub_puts
@@ -150,9 +182,12 @@ describe RakeFly::Tasks::Pipeline::Unpause do
 
     expect(RubyFly)
         .to(receive(:unpause_pipeline)
-                .with(hash_including(
-                          target: target,
-                          pipeline: pipeline)))
+            .with(hash_including(
+                target: target,
+                pipeline: pipeline,
+                environment: {
+                    "HOME" => home_directory
+                })))
 
     Rake::Task['unpause'].invoke(target)
   end
@@ -161,11 +196,13 @@ describe RakeFly::Tasks::Pipeline::Unpause do
     target = 'supercorp-ci'
     team = 'supercorp-team'
     pipeline = 'supercorp-something'
+    home_directory = 'build/fly'
 
     subject.define(argument_names: [:target]) do |t, args|
       t.target = args.target
       t.team = team
       t.pipeline = pipeline
+      t.home_directory = home_directory
     end
 
     stub_puts
@@ -173,7 +210,11 @@ describe RakeFly::Tasks::Pipeline::Unpause do
 
     expect(RubyFly)
         .to(receive(:unpause_pipeline)
-                .with(hash_including(team: team)))
+            .with(hash_including(
+                team: team,
+                environment: {
+                    "HOME" => home_directory
+                })))
 
     Rake::Task['unpause'].invoke(target)
   end
@@ -181,10 +222,12 @@ describe RakeFly::Tasks::Pipeline::Unpause do
   it 'derives pipeline from arguments' do
     target = 'supercorp-ci'
     pipeline = 'supercorp-something'
+    home_directory = 'build/fly'
 
     subject.define(argument_names: [:pipeline]) do |t, args|
       t.target = target
       t.pipeline = args.pipeline
+      t.home_directory = home_directory
     end
 
     stub_puts
@@ -192,9 +235,12 @@ describe RakeFly::Tasks::Pipeline::Unpause do
 
     expect(RubyFly)
         .to(receive(:unpause_pipeline)
-                .with(hash_including(
-                          target: target,
-                          pipeline: pipeline)))
+            .with(hash_including(
+                target: target,
+                pipeline: pipeline,
+                environment: {
+                    "HOME" => home_directory
+                })))
 
     Rake::Task['unpause'].invoke(pipeline)
   end

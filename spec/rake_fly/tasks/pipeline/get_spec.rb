@@ -115,13 +115,40 @@ describe RakeFly::Tasks::Pipeline::Get do
         .to(eq(argument_names))
   end
 
+  it 'defaults to a home directory of ENV["HOME"]' do
+    ENV["HOME"] = "/some/home/directory"
+
+    subject.define(
+        target: 'supercorp-ci',
+        pipeline: 'supercorp-something')
+
+    rake_task = Rake::Task['get']
+    test_task = rake_task.creator
+
+    expect(test_task.home_directory).to(eq('/some/home/directory'))
+  end
+
+  it 'uses the provided home directory' do
+    subject.define(
+        target: 'supercorp-ci',
+        pipeline: 'supercorp-something',
+        home_directory: 'build/fly')
+
+    rake_task = Rake::Task['get']
+    test_task = rake_task.creator
+
+    expect(test_task.home_directory).to(eq('build/fly'))
+  end
+
   it 'gets the specific pipeline from the specified target' do
     target = 'supercorp-ci'
     pipeline = 'supercorp-something'
+    home_directory = 'build/fly'
 
     subject.define do |t|
       t.target = target
       t.pipeline = pipeline
+      t.home_directory = home_directory
     end
 
     stub_puts
@@ -131,7 +158,10 @@ describe RakeFly::Tasks::Pipeline::Get do
         .to(receive(:get_pipeline)
             .with(hash_including(
                 target: target,
-                pipeline: pipeline)))
+                pipeline: pipeline,
+                environment: {
+                    "HOME" => home_directory
+                })))
 
     Rake::Task['get'].invoke
   end
@@ -139,10 +169,12 @@ describe RakeFly::Tasks::Pipeline::Get do
   it 'uses the provided target when supplied' do
     target = 'supercorp-ci'
     pipeline = 'supercorp-something'
+    home_directory = 'build/fly'
 
     subject.define(argument_names: [:target]) do |t, args|
       t.target = args.target
       t.pipeline = pipeline
+      t.home_directory = home_directory
     end
 
     stub_puts
@@ -152,7 +184,10 @@ describe RakeFly::Tasks::Pipeline::Get do
         .to(receive(:get_pipeline)
             .with(hash_including(
                 target: target,
-                pipeline: pipeline)))
+                pipeline: pipeline,
+                environment: {
+                    "HOME" => home_directory
+                })))
 
     Rake::Task['get'].invoke(target)
   end
@@ -160,10 +195,12 @@ describe RakeFly::Tasks::Pipeline::Get do
   it 'uses the provided pipeline when supplied' do
     target = 'supercorp-ci'
     pipeline = 'supercorp-something'
+    home_directory = 'build/fly'
 
     subject.define(argument_names: [:pipeline]) do |t, args|
       t.target = target
       t.pipeline = args.pipeline
+      t.home_directory = home_directory
     end
 
     stub_puts
@@ -173,7 +210,10 @@ describe RakeFly::Tasks::Pipeline::Get do
         .to(receive(:get_pipeline)
             .with(hash_including(
                 target: target,
-                pipeline: pipeline)))
+                pipeline: pipeline,
+                environment: {
+                    "HOME" => home_directory
+                })))
 
     Rake::Task['get'].invoke(pipeline)
   end

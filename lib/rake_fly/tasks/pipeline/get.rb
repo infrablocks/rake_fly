@@ -18,14 +18,20 @@ module RakeFly
   
         parameter :target, :required => true
         parameter :pipeline, :required => true
-  
+
+        parameter :home_directory,
+            default: RakeFactory::DynamicValue.new { |_| ENV['HOME'] }
+
         parameter :ensure_task_name, :default => :'fly:ensure'
   
         action do |t|
           puts "Getting pipeline #{t.pipeline} for target #{t.target}..."
           RubyFly.get_pipeline(
               target: t.target,
-              pipeline: t.pipeline)
+              pipeline: t.pipeline,
+              environment: {
+                  "HOME" => t.home_directory
+              })
         end
       end
     end
