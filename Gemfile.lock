@@ -5,7 +5,7 @@ PATH
       concourse.rb (>= 0.4)
       rake_dependencies (~> 2, < 3)
       rake_factory (>= 0.29, < 1)
-      ruby_fly (>= 0.27)
+      ruby_fly (>= 0.29)
       semantic (~> 1.6.1)
 
 GEM
@@ -123,7 +123,7 @@ GEM
       rspec-support (~> 3.10.0)
     rspec-support (3.10.1)
     ruby2_keywords (0.0.2)
-    ruby_fly (0.27.0)
+    ruby_fly (0.29.0)
       lino (>= 1.5)
     ruby_gpg2 (0.8.0)
       lino (>= 1.5)

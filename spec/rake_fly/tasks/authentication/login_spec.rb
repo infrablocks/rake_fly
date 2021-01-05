@@ -348,38 +348,3 @@ describe RakeFly::Tasks::Authentication::Login do
     allow(RubyFly).to(receive(:login))
   end
 end
-
-# Could invoke fly or could use API directly
-# Can use a username and password for either backend
-# Can go without a username and password for the fly backend
-#
-# Need a work_dir to scope flyrc
-#
-# fly tasks
-# - ensure
-# authentication tasks
-# - login
-# - status
-# - ensure
-# pipeline tasks
-# - get
-# - set
-# - unpause
-# - push
-#
-# Maybe:
-#
-# fly:clean
-# fly:download
-# fly:ensure
-# fly:extract
-# fly:fetch
-#
-# ci:pipeline:get
-# ci:pipeline:set
-# ci:pipeline:unpause
-# ci:pipeline:push
-# ci:authentication:login
-# ci:authentication:status
-# ci:authentication:ensure
-#
