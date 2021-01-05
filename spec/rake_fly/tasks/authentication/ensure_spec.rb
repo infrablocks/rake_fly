@@ -86,14 +86,14 @@ describe RakeFly::Tasks::Authentication::Ensure do
         .to(include(Rake::Task['fly:ensure']))
   end
 
-  it 'depends on the provided task if specified' do
+  it 'depends on the provided fly ensure task if specified' do
     namespace :tools do
       namespace :fly do
         task :ensure
       end
     end
 
-    define_task(ensure_task_name: 'tools:fly:ensure') do |t|
+    define_task(fly_ensure_task_name: 'tools:fly:ensure') do |t|
       t.target = 'supercorp-ci'
     end
 

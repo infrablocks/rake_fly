@@ -8,7 +8,7 @@ module RakeFly
       class Ensure < RakeFactory::Task
         default_name :ensure
         default_prerequisites RakeFactory::DynamicValue.new { |t|
-          [t.ensure_task_name]
+          [t.fly_ensure_task_name]
         }
         default_description RakeFactory::DynamicValue.new { |t|
           target = t.target || '<derived>'
@@ -21,7 +21,7 @@ module RakeFly
         parameter :home_directory,
             default: RakeFactory::DynamicValue.new { |_| ENV['HOME'] }
 
-        parameter :ensure_task_name, :default => :'fly:ensure'
+        parameter :fly_ensure_task_name, :default => :'fly:ensure'
 
         action do |t, args|
           puts "Ensuring target #{t.target} is logged in..."

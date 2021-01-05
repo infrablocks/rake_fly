@@ -291,7 +291,7 @@ describe RakeFly::Tasks::Authentication::Login do
       end
 
       define_task(
-          ensure_task_name: 'tools:fly:ensure',
+          fly_ensure_task_name: 'tools:fly:ensure',
           backend: RakeFly::Tasks::Authentication::Login::FlyBackend) do |t|
         t.concourse_url = "https://concourse.example.com"
         t.target = 'supercorp-ci'

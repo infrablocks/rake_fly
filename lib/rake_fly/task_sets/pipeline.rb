@@ -12,10 +12,10 @@ module RakeFly
 
       parameter :argument_names, default: []
 
-      parameter :target, :required => true
+      parameter :target, required: true
       parameter :team
-      parameter :pipeline, :required => true
-      parameter :config, :required => true
+      parameter :pipeline, required: true
+      parameter :config, required: true
 
       parameter :vars
       parameter :var_files
@@ -24,10 +24,12 @@ module RakeFly
       parameter :home_directory,
           default: RakeFactory::DynamicValue.new { |_| ENV['HOME'] }
 
-      parameter :get_task_name, :default => :get
-      parameter :set_task_name, :default => :set
-      parameter :unpause_task_name, :default => :unpause
-      parameter :push_task_name, :default => :push
+      parameter :get_task_name, default: :get
+      parameter :set_task_name, default: :set
+      parameter :unpause_task_name, default: :unpause
+      parameter :push_task_name, default: :push
+
+      parameter :fly_ensure_task_name, default: :'fly:ensure'
 
       task Tasks::Pipeline::Get,
           name: RakeFactory::DynamicValue.new { |ts|

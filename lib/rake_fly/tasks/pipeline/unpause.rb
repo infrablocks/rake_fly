@@ -7,7 +7,7 @@ module RakeFly
       class Unpause < RakeFactory::Task
         default_name :unpause
         default_prerequisites RakeFactory::DynamicValue.new { |t|
-          [t.ensure_task_name]
+          [t.fly_ensure_task_name]
         }
         default_description RakeFactory::DynamicValue.new { |t|
           pipeline = t.pipeline || '<derived>'
@@ -23,7 +23,7 @@ module RakeFly
         parameter :home_directory,
             default: RakeFactory::DynamicValue.new { |_| ENV['HOME'] }
 
-        parameter :ensure_task_name, :default => :'fly:ensure'
+        parameter :fly_ensure_task_name, :default => :'fly:ensure'
 
         action do |t|
           puts "Unpausing pipeline #{t.pipeline} for target #{t.target}..."

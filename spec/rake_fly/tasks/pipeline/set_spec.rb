@@ -84,7 +84,7 @@ describe RakeFly::Tasks::Pipeline::Set do
         .to(include(Rake::Task['fly:ensure']))
   end
 
-  it 'depends on the provided task if specified' do
+  it 'depends on the provided fly ensure task if specified' do
     namespace :tools do
       namespace :fly do
         task :ensure
@@ -92,7 +92,7 @@ describe RakeFly::Tasks::Pipeline::Set do
     end
 
     namespace :pipeline do
-      subject.define(ensure_task_name: 'tools:fly:ensure') do |t|
+      subject.define(fly_ensure_task_name: 'tools:fly:ensure') do |t|
         t.target = 'supercorp-ci'
         t.pipeline = 'supercorp-something2'
         t.config = 'ci/pipeline.yml'

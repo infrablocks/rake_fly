@@ -8,7 +8,7 @@ module RakeFly
       class Login < RakeFactory::Task
         class FlyBackend
           def resolve_prerequisites(task)
-            [task.ensure_task_name]
+            [task.fly_ensure_task_name]
           end
 
           def execute(task)
@@ -68,7 +68,7 @@ module RakeFly
         parameter :home_directory,
             default: RakeFactory::DynamicValue.new { |_| ENV['HOME'] }
 
-        parameter :ensure_task_name, :default => :'fly:ensure'
+        parameter :fly_ensure_task_name, :default => :'fly:ensure'
 
         action do |t|
           puts "Logging in to #{t.concourse_url} as target #{t.target}..."
