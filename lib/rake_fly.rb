@@ -48,19 +48,11 @@ module RakeFly
   end
 
   def self.define_pipeline_tasks(opts = {}, &block)
-    task_names = opts[:task_names]
-    if task_names
-      opts[:get_pipeline_task_name] ||=
-          task_names[:get_pipeline] if task_names[:get_pipeline]
-      opts[:set_pipeline_task_name] ||=
-          task_names[:set_pipeline] if task_names[:set_pipeline]
-      opts[:unpause_pipeline_task_name] ||=
-          task_names[:unpause_pipeline] if task_names[:unpause_pipeline]
-      opts[:push_pipeline_task_name] ||=
-          task_names[:push_pipeline] if task_names[:push_pipeline]
-    end
-
     RakeFly::TaskSets::Pipeline.define(opts, &block)
+  end
+
+  def self.define_authentication_tasks(opts = {}, &block)
+    RakeFly::TaskSets::Authentication.define(opts, &block)
   end
 
   private
