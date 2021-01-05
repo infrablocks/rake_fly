@@ -7,7 +7,7 @@ module RakeFly
       class Get < RakeFactory::Task
         default_name :get
         default_prerequisites RakeFactory::DynamicValue.new { |t|
-          [t.fly_ensure_task_name]
+          [t.fly_ensure_task_name, t.authentication_ensure_task_name]
         }
         default_description RakeFactory::DynamicValue.new { |t|
           pipeline = t.pipeline || '<derived>'
@@ -23,6 +23,8 @@ module RakeFly
             default: RakeFactory::DynamicValue.new { |_| ENV['HOME'] }
 
         parameter :fly_ensure_task_name, :default => :'fly:ensure'
+        parameter :authentication_ensure_task_name,
+            :default => :'authentication:ensure'
   
         action do |t|
           puts "Getting pipeline #{t.pipeline} for target #{t.target}..."

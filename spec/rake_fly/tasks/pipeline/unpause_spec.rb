@@ -8,6 +8,10 @@ describe RakeFly::Tasks::Pipeline::Unpause do
     namespace :fly do
       task :ensure
     end
+
+    namespace :authentication do
+      task :ensure
+    end
   end
 
   it 'adds a unpause task in the namespace in which it is created' do
@@ -93,6 +97,35 @@ describe RakeFly::Tasks::Pipeline::Unpause do
 
     expect(Rake::Task['pipeline:unpause'].prerequisite_tasks)
         .to(include(Rake::Task['tools:fly:ensure']))
+  end
+
+  it 'depends on the authentication:ensure task by default' do
+    namespace :pipeline do
+      subject.define do |t|
+        t.target = 'supercorp-ci'
+        t.pipeline = 'supercorp-something2'
+      end
+    end
+
+    expect(Rake::Task['pipeline:unpause'].prerequisite_tasks)
+        .to(include(Rake::Task['authentication:ensure']))
+  end
+
+  it 'depends on the provided authentication ensure task if specified' do
+    namespace :auth do
+      task :ensure
+    end
+
+    namespace :pipeline do
+      subject.define(
+          authentication_ensure_task_name: 'auth:ensure') do |t|
+        t.target = 'supercorp-ci'
+        t.pipeline = 'supercorp-something2'
+      end
+    end
+
+    expect(Rake::Task['pipeline:unpause'].prerequisite_tasks)
+        .to(include(Rake::Task['auth:ensure']))
   end
 
   it 'configures the task with the provided arguments if specified' do
