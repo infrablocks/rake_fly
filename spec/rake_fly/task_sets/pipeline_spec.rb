@@ -11,8 +11,7 @@ describe RakeFly::TaskSets::Pipeline do
       namespace :pipeline do
         subject.define(
             target: target,
-            pipeline: pipeline,
-            config: 'ci/pipeline.yml')
+            pipeline: pipeline)
       end
 
       rake_task = Rake::Task["pipeline:get"]
@@ -21,12 +20,46 @@ describe RakeFly::TaskSets::Pipeline do
       expect(rake_task.creator.pipeline).to(eq(pipeline))
     end
 
+    it 'uses a home directory of ENV["HOME"] by default' do
+      target = 'supercorp-ci'
+      pipeline = 'supercorp-something'
+      home_directory = "/some/path/to/home"
+
+      ENV["HOME"] = home_directory
+
+      namespace :pipeline do
+        subject.define(
+            target: target,
+            pipeline: pipeline)
+      end
+
+      rake_task = Rake::Task["pipeline:get"]
+
+      expect(rake_task.creator.home_directory).to(eq(home_directory))
+    end
+
+    it 'uses the provided home directory when supplied' do
+      target = 'supercorp-ci'
+      pipeline = 'supercorp-something'
+      home_directory = "/tmp/fly"
+
+      namespace :pipeline do
+        subject.define(
+            target: target,
+            pipeline: pipeline,
+            home_directory: home_directory)
+      end
+
+      rake_task = Rake::Task["pipeline:get"]
+
+      expect(rake_task.creator.home_directory).to(eq(home_directory))
+    end
+
     it 'uses the provided get task name when present' do
       namespace :pipeline do
         subject.define(
             target: 'supercorp-ci',
             pipeline: 'supercorp-something',
-            config: 'ci/pipeline.yml',
 
             get_task_name: :fetch)
       end
@@ -43,8 +76,7 @@ describe RakeFly::TaskSets::Pipeline do
             argument_names: argument_names,
 
             target: 'supercorp-ci',
-            pipeline: 'supercorp-something',
-            config: 'ci/pipeline.yml')
+            pipeline: 'supercorp-something')
       end
 
       rake_task = Rake::Task["pipeline:get"]
@@ -71,6 +103,45 @@ describe RakeFly::TaskSets::Pipeline do
       expect(rake_task.creator.target).to(eq(target))
       expect(rake_task.creator.pipeline).to(eq(pipeline))
       expect(rake_task.creator.config).to(eq(config))
+    end
+
+    it 'uses a home directory of ENV["HOME"] by default' do
+      target = 'supercorp-ci'
+      pipeline = 'supercorp-something'
+      config = 'ci/pipeline.yml'
+      home_directory = "/some/path/to/home"
+
+      ENV["HOME"] = home_directory
+
+      namespace :pipeline do
+        subject.define(
+            target: target,
+            pipeline: pipeline,
+            config: config)
+      end
+
+      rake_task = Rake::Task["pipeline:set"]
+
+      expect(rake_task.creator.home_directory).to(eq(home_directory))
+    end
+
+    it 'uses the provided home directory when supplied' do
+      target = 'supercorp-ci'
+      pipeline = 'supercorp-something'
+      config = 'ci/pipeline.yml'
+      home_directory = "build/fly"
+
+      namespace :pipeline do
+        subject.define(
+            target: target,
+            pipeline: pipeline,
+            config: config,
+            home_directory: home_directory)
+      end
+
+      rake_task = Rake::Task["pipeline:set"]
+
+      expect(rake_task.creator.home_directory).to(eq(home_directory))
     end
 
     it 'passes vars when available' do
@@ -270,6 +341,45 @@ describe RakeFly::TaskSets::Pipeline do
 
       expect(rake_task.creator.target).to(eq(target))
       expect(rake_task.creator.pipeline).to(eq(pipeline))
+    end
+
+    it 'uses a home directory of ENV["HOME"] by default' do
+      target = 'supercorp-ci'
+      pipeline = 'supercorp-something'
+      config = 'ci/pipeline.yml'
+      home_directory = "/some/path/to/home"
+
+      ENV["HOME"] = home_directory
+
+      namespace :pipeline do
+        subject.define(
+            target: target,
+            pipeline: pipeline,
+            config: config)
+      end
+
+      rake_task = Rake::Task["pipeline:unpause"]
+
+      expect(rake_task.creator.home_directory).to(eq(home_directory))
+    end
+
+    it 'uses the provided home directory when supplied' do
+      target = 'supercorp-ci'
+      pipeline = 'supercorp-something'
+      config = 'ci/pipeline.yml'
+      home_directory = "build/fly"
+
+      namespace :pipeline do
+        subject.define(
+            target: target,
+            pipeline: pipeline,
+            config: config,
+            home_directory: home_directory)
+      end
+
+      rake_task = Rake::Task["pipeline:unpause"]
+
+      expect(rake_task.creator.home_directory).to(eq(home_directory))
     end
 
     it 'uses the provided unpause pipeline task name when present' do
