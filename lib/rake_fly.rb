@@ -47,12 +47,16 @@ module RakeFly
     RakeDependencies::TaskSets::All.define(task_set_opts)
   end
 
+  def self.define_authentication_tasks(opts = {}, &block)
+    RakeFly::TaskSets::Authentication.define(opts, &block)
+  end
+
   def self.define_pipeline_tasks(opts = {}, &block)
     RakeFly::TaskSets::Pipeline.define(opts, &block)
   end
 
-  def self.define_authentication_tasks(opts = {}, &block)
-    RakeFly::TaskSets::Authentication.define(opts, &block)
+  def self.define_project_tasks(opts = {}, &block)
+    RakeFly::TaskSets::Project.define(opts, &block)
   end
 
   private

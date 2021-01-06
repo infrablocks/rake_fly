@@ -359,7 +359,7 @@ describe RakeFly::TaskSets::Pipeline do
     end
   end
 
-  context 'unpause pipeline task' do
+  context 'unpause task' do
     it 'configures with target and pipeline' do
       target = 'supercorp-ci'
       pipeline = 'supercorp-something'
@@ -484,7 +484,7 @@ describe RakeFly::TaskSets::Pipeline do
     end
   end
 
-  context 'push pipeline task' do
+  context 'push task' do
     it 'configures with target and pipeline' do
       target = 'supercorp-ci'
       pipeline = 'supercorp-something'
