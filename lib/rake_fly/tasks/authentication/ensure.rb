@@ -21,6 +21,8 @@ module RakeFly
         parameter :home_directory,
             default: RakeFactory::DynamicValue.new { |_| ENV['HOME'] }
 
+        parameter :login_task_name, :default => :login
+
         parameter :fly_ensure_task_name, :default => :'fly:ensure'
 
         action do |t, args|
@@ -34,7 +36,7 @@ module RakeFly
             puts "Already logged in. Continuing..."
           else
             puts "Not logged in. Logging in..."
-            t.application[:login, t.scope].invoke(*args)
+            t.application[t.login_task_name, t.scope].invoke(*args)
           end
         end
       end

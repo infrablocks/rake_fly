@@ -202,4 +202,78 @@ describe RakeFly::TaskSets::Authentication do
           .to(be(true))
     end
   end
+
+  context 'ensure task' do
+    it 'configures with target' do
+      target = 'supercorp-ci'
+
+      namespace :authentication do
+        subject.define(target: target)
+      end
+
+      rake_task = Rake::Task["authentication:ensure"]
+
+      expect(rake_task.creator.target).to(eq(target))
+    end
+
+    it 'uses a home directory of ENV["HOME"] by default' do
+      target = 'supercorp-ci'
+      home_directory = "/some/path/to/home"
+
+      ENV["HOME"] = home_directory
+
+      namespace :authentication do
+        subject.define(
+            target: target)
+      end
+
+      rake_task = Rake::Task["authentication:ensure"]
+
+      expect(rake_task.creator.home_directory).to(eq(home_directory))
+    end
+
+    it 'uses the provided home directory when supplied' do
+      target = 'supercorp-ci'
+      home_directory = "/tmp/fly"
+
+      namespace :authentication do
+        subject.define(
+            target: target,
+            home_directory: home_directory)
+      end
+
+      rake_task = Rake::Task["authentication:ensure"]
+
+      expect(rake_task.creator.home_directory).to(eq(home_directory))
+    end
+
+    it 'uses the provided argument names when present' do
+      argument_names = [:argument, :names]
+
+      namespace :authentication do
+        subject.define(
+            argument_names: argument_names,
+
+            target: 'supercorp-ci')
+      end
+
+      rake_task = Rake::Task["authentication:ensure"]
+
+      expect(rake_task.arg_names).to(eq(argument_names))
+    end
+
+    it 'uses the provided login task name when present' do
+      namespace :authentication do
+        subject.define(
+            target: 'supercorp-ci',
+            concourse_url: "https://concourse.example.com",
+
+            login_task_name: :authenticate)
+      end
+
+      rake_task = Rake::Task["authentication:ensure"]
+
+      expect(rake_task.creator.login_task_name).to(eq(:authenticate))
+    end
+  end
 end
