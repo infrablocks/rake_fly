@@ -27,7 +27,7 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency 'rake_dependencies', '~> 2', '< 3'
   spec.add_dependency 'rake_factory', '>= 0.29', '< 1'
-  spec.add_dependency 'ruby_fly', '>= 0.31'
+  spec.add_dependency 'ruby_fly', '>= 0.35'
   spec.add_dependency 'concourse.rb', '>= 0.4'
   spec.add_dependency 'semantic', '~> 1.6.1'
 
