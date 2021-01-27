@@ -28,6 +28,7 @@ module RakeFly
       parameter :set_task_name, default: :set
       parameter :unpause_task_name, default: :unpause
       parameter :push_task_name, default: :push
+      parameter :destroy_task_name, default: :destroy
 
       parameter :fly_ensure_task_name, default: :'fly:ensure'
 
@@ -46,6 +47,10 @@ module RakeFly
       task Tasks::Pipeline::Push,
           name: RakeFactory::DynamicValue.new { |ts|
             ts.push_task_name
+          }
+      task Tasks::Pipeline::Destroy,
+          name: RakeFactory::DynamicValue.new { |ts|
+            ts.destroy_task_name
           }
     end
   end

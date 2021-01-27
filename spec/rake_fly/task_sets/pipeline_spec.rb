@@ -21,6 +21,8 @@ describe RakeFly::TaskSets::Pipeline do
         .to(be(true))
     expect(Rake::Task.task_defined?('pipeline:push'))
         .to(be(true))
+    expect(Rake::Task.task_defined?('pipeline:destroy'))
+        .to(be(true))
   end
 
   it 'adds all pipeline tasks in the root namespace when none supplied' do
@@ -35,6 +37,7 @@ describe RakeFly::TaskSets::Pipeline do
     expect(Rake::Task.task_defined?('set')).to(be(true))
     expect(Rake::Task.task_defined?('unpause')).to(be(true))
     expect(Rake::Task.task_defined?('push')).to(be(true))
+    expect(Rake::Task.task_defined?('destroy')).to(be(true))
   end
 
   context 'get task' do
@@ -548,6 +551,152 @@ describe RakeFly::TaskSets::Pipeline do
       end
 
       rake_task = Rake::Task["pipeline:push"]
+
+      expect(rake_task.arg_names).to(eq(argument_names))
+    end
+  end
+
+  context 'destroy task' do
+    it 'configures with target and pipeline' do
+      target = 'supercorp-ci'
+      pipeline = 'supercorp-something'
+
+      namespace :pipeline do
+        subject.define(
+            target: target,
+            pipeline: pipeline)
+      end
+
+      rake_task = Rake::Task["pipeline:destroy"]
+
+      expect(rake_task.creator.target).to(eq(target))
+      expect(rake_task.creator.pipeline).to(eq(pipeline))
+    end
+
+    it 'passes value for non interactive when available' do
+      target = 'supercorp-ci'
+      pipeline = 'supercorp-something'
+      non_interactive = true
+
+      namespace :pipeline do
+        subject.define(
+            target: target,
+            pipeline: pipeline,
+            non_interactive: non_interactive)
+      end
+
+      rake_task = Rake::Task["pipeline:destroy"]
+
+      expect(rake_task.creator.non_interactive).to(eq(non_interactive))
+    end
+
+    it 'passes nil for non interactive when not available' do
+      target = 'supercorp-ci'
+      pipeline = 'supercorp-something'
+
+      namespace :pipeline do
+        subject.define(
+            target: target,
+            pipeline: pipeline)
+      end
+
+      rake_task = Rake::Task["pipeline:destroy"]
+
+      expect(rake_task.creator.non_interactive).to(be_nil)
+    end
+
+    it 'passes value for team when available' do
+      target = 'supercorp-ci'
+      team = 'supercorp-team'
+      pipeline = 'supercorp-something'
+
+      namespace :pipeline do
+        subject.define(
+            target: target,
+            team: team,
+            pipeline: pipeline)
+      end
+
+      rake_task = Rake::Task["pipeline:destroy"]
+
+      expect(rake_task.creator.team).to(eq(team))
+    end
+
+    it 'passes nil for team when not available' do
+      target = 'supercorp-ci'
+      pipeline = 'supercorp-something'
+
+      namespace :pipeline do
+        subject.define(
+            target: target,
+            pipeline: pipeline)
+      end
+
+      rake_task = Rake::Task["pipeline:destroy"]
+
+      expect(rake_task.creator.team).to(be_nil)
+    end
+
+    it 'uses a home directory of ENV["HOME"] by default' do
+      target = 'supercorp-ci'
+      pipeline = 'supercorp-something'
+      home_directory = "/some/path/to/home"
+
+      ENV["HOME"] = home_directory
+
+      namespace :pipeline do
+        subject.define(
+            target: target,
+            pipeline: pipeline)
+      end
+
+      rake_task = Rake::Task["pipeline:destroy"]
+
+      expect(rake_task.creator.home_directory).to(eq(home_directory))
+    end
+
+    it 'uses the provided home directory when supplied' do
+      target = 'supercorp-ci'
+      pipeline = 'supercorp-something'
+      home_directory = "/tmp/fly"
+
+      namespace :pipeline do
+        subject.define(
+            target: target,
+            pipeline: pipeline,
+            home_directory: home_directory)
+      end
+
+      rake_task = Rake::Task["pipeline:destroy"]
+
+      expect(rake_task.creator.home_directory).to(eq(home_directory))
+    end
+
+    it 'uses the provided destroy task name when present' do
+      namespace :pipeline do
+        subject.define(
+            target: 'supercorp-ci',
+            pipeline: 'supercorp-something',
+
+            destroy_task_name: :delete)
+      end
+
+      expect(Rake::Task.task_defined?("pipeline:delete"))
+          .to(be(true))
+    end
+
+    it 'uses the provided argument names when present' do
+      argument_names = [:argument, :names]
+
+      namespace :pipeline do
+        subject.define(
+            argument_names: argument_names,
+
+            target: 'supercorp-ci',
+            pipeline: 'supercorp-something')
+      end
+
+      rake_task = Rake::Task["pipeline:destroy"]
 
       expect(rake_task.arg_names).to(eq(argument_names))
     end

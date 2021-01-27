@@ -41,6 +41,7 @@ module RakeFly
       parameter :pipeline_set_task_name, default: :set
       parameter :pipeline_unpause_task_name, default: :unpause
       parameter :pipeline_push_task_name, default: :push
+      parameter :pipeline_destroy_task_name, default: :destroy
 
       parameter :fly_ensure_task_name, default: :'fly:ensure'
 
@@ -95,6 +96,15 @@ module RakeFly
           },
           unpause_task_name: RakeFactory::DynamicValue.new { |ts|
             ts.pipeline_unpause_task_name
+          }
+      task Tasks::Pipeline::Destroy,
+          name: RakeFactory::DynamicValue.new { |ts|
+            ts.pipeline_destroy_task_name
+          },
+          authentication_ensure_task_name: RakeFactory::DynamicValue.new { |ts|
+            (ts.authentication_namespace.to_s + ":" +
+                ts.authentication_ensure_task_name.to_s)
+                .to_sym
           }
 
       def define_on(application)
