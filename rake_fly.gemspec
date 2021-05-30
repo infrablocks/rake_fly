@@ -6,14 +6,14 @@ require 'rake_fly/version'
 Gem::Specification.new do |spec|
   spec.name = 'rake_fly'
   spec.version = RakeFly::VERSION
-  spec.authors = ['Toby Clemson']
-  spec.email = ['tobyclemson@gmail.com']
+  spec.authors = ['InfraBlocks Maintainers']
+  spec.email = ['maintainers@infrablocks.io']
 
   spec.summary = 'Rake tasks for managing Concourse pipelines.'
   spec.description = 'Rake tasks for common fly interactions allowing ' +
       'Concourse pipelines to be managed as part of a ' +
       'build.'
-  spec.homepage = "https://github.com/tobyclemson/rake_fly"
+  spec.homepage = "https://github.com/infrablocks/rake_fly"
   spec.license = 'MIT'
 
   spec.files = `git ls-files -z`.split("\x0").select do |f|
