@@ -92,6 +92,39 @@ describe RakeFly::TaskSets::Authentication do
       expect(rake_task.creator.team).to(eq('main'))
     end
 
+    it 'uses the default backend when not supplied' do
+      target = 'supercorp-ci'
+      concourse_url = "https://concourse.example.com"
+      backend = RakeFly::Tasks::Authentication::Login::ApiBackend
+
+      namespace :authentication do
+        subject.define(
+          target: target,
+          concourse_url: concourse_url)
+      end
+
+      rake_task = Rake::Task["authentication:login"]
+
+      expect(rake_task.creator.backend).to(eq(backend))
+    end
+
+    it 'uses the provided backend when supplied' do
+      target = 'supercorp-ci'
+      concourse_url = "https://concourse.example.com"
+      backend = RakeFly::Tasks::Authentication::Login::FlyBackend
+
+      namespace :authentication do
+        subject.define(
+          target: target,
+          concourse_url: concourse_url,
+          backend: backend)
+      end
+
+      rake_task = Rake::Task["authentication:login"]
+
+      expect(rake_task.creator.backend).to(eq(backend))
+    end
+
     it 'uses the provided team when supplied' do
       target = 'supercorp-ci'
       concourse_url = "https://concourse.example.com"

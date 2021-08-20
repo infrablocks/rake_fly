@@ -16,6 +16,8 @@ module RakeFly
 
       parameter :concourse_url, required: true
       parameter :team, default: 'main'
+
+      parameter :backend, default: RakeFly::Tasks::Authentication::Login::ApiBackend
       parameter :username
       parameter :password
 
