@@ -57,7 +57,7 @@ GEM
       dry-logic (~> 1.0, >= 1.0.2)
     excon (0.82.0)
     fakefs (0.20.1)
-    faker (2.18.0)
+    faker (2.19.0)
       i18n (>= 1.6, < 2)
     faraday (1.4.2)
       faraday-em_http (~> 1.0)
