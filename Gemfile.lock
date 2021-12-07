@@ -78,7 +78,7 @@ GEM
     i18n (1.8.11)
       concurrent-ruby (~> 1.0)
     ipaddr (1.2.3)
-    jwt (2.2.3)
+    jwt (2.3.0)
     lino (3.0.0)
       hamster (~> 3.0)
       open4 (~> 1.3)
