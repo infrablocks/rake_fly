@@ -72,11 +72,11 @@ RSpec.describe RakeFly do
         expect(task_set.path).to(eq('tools/fly'))
       end
 
-      it 'uses os_ids of darwin and linux' do
+      it 'uses platform OS names of darwin and linux' do
         task_set = RakeFly.define_installation_tasks
 
-        expect(task_set.os_ids)
-            .to(eq({mac: 'darwin', linux: 'linux'}))
+        expect(task_set.platform_os_names)
+            .to(eq({darwin: 'darwin', linux: 'linux'}))
       end
 
       # TODO: test needs_fetch more thoroughly
@@ -99,15 +99,17 @@ RSpec.describe RakeFly do
           expect(task_set.uri_template)
               .to(eq(
                   'https://github.com/concourse/concourse/releases/download' +
-                      '/v<%= @version %>' +
-                      '/fly-<%= @version %>-<%= @os_id %>-amd64<%= @ext %>'))
+                    '/v<%= @version %>' +
+                    '/fly-<%= @version %>-' +
+                    '<%= @platform_os_name %>-amd64<%= @ext %>'))
         end
 
         it 'uses the correct file name template' do
           task_set = RakeFly.define_installation_tasks(version: '5.0.0')
 
           expect(task_set.file_name_template)
-              .to(eq('fly-<%= @version %>-<%= @os_id %>-amd64<%= @ext %>'))
+              .to(eq('fly-<%= @version %>-' +
+                       '<%= @platform_os_name %>-amd64<%= @ext %>'))
         end
       end
 
@@ -124,21 +126,21 @@ RSpec.describe RakeFly do
           expect(task_set.uri_template)
               .to(eq('https://github.com/concourse/concourse/releases/' +
                   'download/v<%= @version %>/' +
-                  'fly_<%= @os_id %>_amd64'))
+                  'fly_<%= @platform_os_name %>_amd64'))
         end
 
         it 'uses the correct file name template' do
           task_set = RakeFly.define_installation_tasks
 
           expect(task_set.file_name_template)
-              .to(eq('fly_<%= @os_id %>_amd64'))
+              .to(eq('fly_<%= @platform_os_name %>_amd64'))
         end
 
         it 'uses the correct source binary name template' do
           task_set = RakeFly.define_installation_tasks
 
           expect(task_set.source_binary_name_template)
-              .to(eq('fly_<%= @os_id %>_amd64'))
+              .to(eq('fly_<%= @platform_os_name %>_amd64'))
         end
 
         it 'uses the correct target binary name template' do

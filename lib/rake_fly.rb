@@ -26,7 +26,7 @@ module RakeFly
         version: version,
         path: path,
         type: type,
-        os_ids: {mac: 'darwin', linux: 'linux'},
+        platform_os_names: {darwin: 'darwin', linux: 'linux'},
         uri_template: uri_template,
         file_name_template: file_name_template,
         needs_fetch: lambda { |t|
@@ -36,8 +36,10 @@ module RakeFly
         }}
 
     unless new_format
-      task_set_opts[:source_binary_name_template] = "fly_<%= @os_id %>_amd64"
-      task_set_opts[:target_binary_name_template] = "fly"
+      task_set_opts[:source_binary_name_template] =
+        "fly_<%= @platform_os_name %>_amd64"
+      task_set_opts[:target_binary_name_template] =
+        "fly"
     end
 
     RubyFly.configure do |c|
@@ -78,18 +80,18 @@ module RakeFly
     if new_format?(version)
       "https://github.com/concourse/concourse/releases/download" +
           "/v<%= @version %>" +
-          "/fly-<%= @version %>-<%= @os_id %>-amd64<%= @ext %>"
+          "/fly-<%= @version %>-<%= @platform_os_name %>-amd64<%= @ext %>"
     else
       "https://github.com/concourse/concourse/releases/" +
-          "download/v<%= @version %>/fly_<%= @os_id %>_amd64"
+          "download/v<%= @version %>/fly_<%= @platform_os_name %>_amd64"
     end
   end
 
   def self.file_name_template(version)
     if new_format?(version)
-      "fly-<%= @version %>-<%= @os_id %>-amd64<%= @ext %>"
+      "fly-<%= @version %>-<%= @platform_os_name %>-amd64<%= @ext %>"
     else
-      "fly_<%= @os_id %>_amd64"
+      "fly_<%= @platform_os_name %>_amd64"
     end
   end
 end

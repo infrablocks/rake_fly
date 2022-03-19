@@ -3,7 +3,7 @@ PATH
   specs:
     rake_fly (2.8.0.pre.4)
       concourse.rb (>= 0.4)
-      rake_dependencies (~> 2.13)
+      rake_dependencies (~> 3.1)
       rake_factory (~> 0.29)
       ruby_fly (>= 0.35)
       semantic (~> 1.6)
@@ -105,7 +105,7 @@ GEM
       excon (~> 0.72)
       rake_factory (~> 0.23)
       sshkey (~> 2.0)
-    rake_dependencies (2.13.0)
+    rake_dependencies (3.1.0)
       hamster (~> 3.0)
       minitar (~> 0.9)
       rake_factory (~> 0.23)
