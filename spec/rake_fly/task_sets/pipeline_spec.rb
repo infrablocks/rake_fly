@@ -1,76 +1,94 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe RakeFly::TaskSets::Pipeline do
-  include_context :rake
+  include_context 'rake'
 
-  it 'adds all pipeline tasks in the provided namespace ' +
-      'when supplied' do
+  it 'adds all pipeline tasks in the provided namespace ' \
+     'when supplied' do
     target = 'supercorp-ci'
     pipeline = 'supercorp-something'
 
-    subject.define(
-        namespace: :pipeline,
-        target: target,
-        pipeline: pipeline)
+    described_class.define(
+      namespace: :pipeline,
+      target: target,
+      pipeline: pipeline
+    )
 
-    expect(Rake::Task.task_defined?('pipeline:get'))
-        .to(be(true))
-    expect(Rake::Task.task_defined?('pipeline:set'))
-        .to(be(true))
-    expect(Rake::Task.task_defined?('pipeline:unpause'))
-        .to(be(true))
-    expect(Rake::Task.task_defined?('pipeline:push'))
-        .to(be(true))
-    expect(Rake::Task.task_defined?('pipeline:destroy'))
-        .to(be(true))
+    expect(Rake.application)
+      .to(have_tasks_defined(
+            %w[pipeline:get
+               pipeline:set
+               pipeline:unpause
+               pipeline:push
+               pipeline:destroy]
+          ))
   end
 
   it 'adds all pipeline tasks in the root namespace when none supplied' do
     target = 'supercorp-ci'
     pipeline = 'supercorp-something'
 
-    subject.define(
-        target: target,
-        pipeline: pipeline)
+    described_class.define(
+      target: target,
+      pipeline: pipeline
+    )
 
-    expect(Rake::Task.task_defined?('get')).to(be(true))
-    expect(Rake::Task.task_defined?('set')).to(be(true))
-    expect(Rake::Task.task_defined?('unpause')).to(be(true))
-    expect(Rake::Task.task_defined?('push')).to(be(true))
-    expect(Rake::Task.task_defined?('destroy')).to(be(true))
+    expect(Rake.application)
+      .to(have_tasks_defined(
+            %w[get
+               set
+               unpause
+               push
+               destroy]
+          ))
   end
 
-  context 'get task' do
-    it 'configures with target and pipeline' do
+  describe 'get task' do
+    it 'configures with target' do
       target = 'supercorp-ci'
+
+      namespace :pipeline do
+        described_class.define(
+          target: target
+        )
+      end
+
+      rake_task = Rake::Task['pipeline:get']
+
+      expect(rake_task.creator.target).to(eq(target))
+    end
+
+    it 'configures with pipeline' do
       pipeline = 'supercorp-something'
 
       namespace :pipeline do
-        subject.define(
-            target: target,
-            pipeline: pipeline)
+        described_class.define(
+          pipeline: pipeline
+        )
       end
 
-      rake_task = Rake::Task["pipeline:get"]
+      rake_task = Rake::Task['pipeline:get']
 
-      expect(rake_task.creator.target).to(eq(target))
       expect(rake_task.creator.pipeline).to(eq(pipeline))
     end
 
     it 'uses a home directory of ENV["HOME"] by default' do
       target = 'supercorp-ci'
       pipeline = 'supercorp-something'
-      home_directory = "/some/path/to/home"
+      home_directory = '/some/path/to/home'
 
-      ENV["HOME"] = home_directory
+      ENV['HOME'] = home_directory
 
       namespace :pipeline do
-        subject.define(
-            target: target,
-            pipeline: pipeline)
+        described_class.define(
+          target: target,
+          pipeline: pipeline
+        )
       end
 
-      rake_task = Rake::Task["pipeline:get"]
+      rake_task = Rake::Task['pipeline:get']
 
       expect(rake_task.creator.home_directory).to(eq(home_directory))
     end
@@ -78,67 +96,93 @@ describe RakeFly::TaskSets::Pipeline do
     it 'uses the provided home directory when supplied' do
       target = 'supercorp-ci'
       pipeline = 'supercorp-something'
-      home_directory = "/tmp/fly"
+      home_directory = '/tmp/fly'
 
       namespace :pipeline do
-        subject.define(
-            target: target,
-            pipeline: pipeline,
-            home_directory: home_directory)
+        described_class.define(
+          target: target,
+          pipeline: pipeline,
+          home_directory: home_directory
+        )
       end
 
-      rake_task = Rake::Task["pipeline:get"]
+      rake_task = Rake::Task['pipeline:get']
 
       expect(rake_task.creator.home_directory).to(eq(home_directory))
     end
 
     it 'uses the provided get task name when present' do
       namespace :pipeline do
-        subject.define(
-            target: 'supercorp-ci',
-            pipeline: 'supercorp-something',
+        described_class.define(
+          target: 'supercorp-ci',
+          pipeline: 'supercorp-something',
 
-            get_task_name: :fetch)
+          get_task_name: :fetch
+        )
       end
 
-      expect(Rake::Task.task_defined?("pipeline:fetch"))
-          .to(be(true))
+      expect(Rake.application)
+        .to(have_task_defined('pipeline:fetch'))
     end
 
     it 'uses the provided argument names when present' do
-      argument_names = [:argument, :names]
+      argument_names = %i[argument names]
 
       namespace :pipeline do
-        subject.define(
-            argument_names: argument_names,
+        described_class.define(
+          argument_names: argument_names,
 
-            target: 'supercorp-ci',
-            pipeline: 'supercorp-something')
+          target: 'supercorp-ci',
+          pipeline: 'supercorp-something'
+        )
       end
 
-      rake_task = Rake::Task["pipeline:get"]
+      rake_task = Rake::Task['pipeline:get']
 
       expect(rake_task.arg_names).to(eq(argument_names))
     end
   end
 
-  context 'set task' do
-    it 'configures with target, pipeline and config' do
+  describe 'set task' do
+    it 'configures with target' do
       target = 'supercorp-ci'
+
+      namespace :pipeline do
+        described_class.define(
+          target: target
+        )
+      end
+
+      rake_task = Rake::Task['pipeline:set']
+
+      expect(rake_task.creator.target).to(eq(target))
+    end
+
+    it 'configures with pipeline' do
       pipeline = 'supercorp-something'
+
+      namespace :pipeline do
+        described_class.define(
+          pipeline: pipeline
+        )
+      end
+
+      rake_task = Rake::Task['pipeline:set']
+
+      expect(rake_task.creator.pipeline).to(eq(pipeline))
+    end
+
+    it 'configures with config' do
       config = 'ci/pipeline.yml'
 
       namespace :pipeline do
-        subject.define(
-            target: target,
-            pipeline: pipeline,
-            config: config)
+        described_class.define(
+          config: config
+        )
       end
 
-      rake_task = Rake::Task["pipeline:set"]
+      rake_task = Rake::Task['pipeline:set']
 
-      expect(rake_task.creator.target).to(eq(target))
-      expect(rake_task.creator.pipeline).to(eq(pipeline))
       expect(rake_task.creator.config).to(eq(config))
     end
 
@@ -146,18 +190,19 @@ describe RakeFly::TaskSets::Pipeline do
       target = 'supercorp-ci'
       pipeline = 'supercorp-something'
       config = 'ci/pipeline.yml'
-      home_directory = "/some/path/to/home"
+      home_directory = '/some/path/to/home'
 
-      ENV["HOME"] = home_directory
+      ENV['HOME'] = home_directory
 
       namespace :pipeline do
-        subject.define(
-            target: target,
-            pipeline: pipeline,
-            config: config)
+        described_class.define(
+          target: target,
+          pipeline: pipeline,
+          config: config
+        )
       end
 
-      rake_task = Rake::Task["pipeline:set"]
+      rake_task = Rake::Task['pipeline:set']
 
       expect(rake_task.creator.home_directory).to(eq(home_directory))
     end
@@ -166,17 +211,18 @@ describe RakeFly::TaskSets::Pipeline do
       target = 'supercorp-ci'
       pipeline = 'supercorp-something'
       config = 'ci/pipeline.yml'
-      home_directory = "build/fly"
+      home_directory = 'build/fly'
 
       namespace :pipeline do
-        subject.define(
-            target: target,
-            pipeline: pipeline,
-            config: config,
-            home_directory: home_directory)
+        described_class.define(
+          target: target,
+          pipeline: pipeline,
+          config: config,
+          home_directory: home_directory
+        )
       end
 
-      rake_task = Rake::Task["pipeline:set"]
+      rake_task = Rake::Task['pipeline:set']
 
       expect(rake_task.creator.home_directory).to(eq(home_directory))
     end
@@ -187,19 +233,20 @@ describe RakeFly::TaskSets::Pipeline do
       config = 'ci/pipeline.yml'
 
       vars = {
-          key1: 'value1',
-          key2: 'value2'
+        key1: 'value1',
+        key2: 'value2'
       }
 
       namespace :pipeline do
-        subject.define(
-            target: target,
-            pipeline: pipeline,
-            config: config,
-            vars: vars)
+        described_class.define(
+          target: target,
+          pipeline: pipeline,
+          config: config,
+          vars: vars
+        )
       end
 
-      rake_task = Rake::Task["pipeline:set"]
+      rake_task = Rake::Task['pipeline:set']
 
       expect(rake_task.creator.vars).to(eq(vars))
     end
@@ -210,13 +257,14 @@ describe RakeFly::TaskSets::Pipeline do
       config = 'ci/pipeline.yml'
 
       namespace :pipeline do
-        subject.define(
-            target: target,
-            pipeline: pipeline,
-            config: config)
+        described_class.define(
+          target: target,
+          pipeline: pipeline,
+          config: config
+        )
       end
 
-      rake_task = Rake::Task["pipeline:set"]
+      rake_task = Rake::Task['pipeline:set']
 
       expect(rake_task.creator.vars).to(be_nil)
     end
@@ -229,14 +277,15 @@ describe RakeFly::TaskSets::Pipeline do
       var_files = ['config/variables.yml']
 
       namespace :pipeline do
-        subject.define(
-            target: target,
-            pipeline: pipeline,
-            config: config,
-            var_files: var_files)
+        described_class.define(
+          target: target,
+          pipeline: pipeline,
+          config: config,
+          var_files: var_files
+        )
       end
 
-      rake_task = Rake::Task["pipeline:set"]
+      rake_task = Rake::Task['pipeline:set']
 
       expect(rake_task.creator.var_files).to(eq(var_files))
     end
@@ -247,13 +296,14 @@ describe RakeFly::TaskSets::Pipeline do
       config = 'ci/pipeline.yml'
 
       namespace :pipeline do
-        subject.define(
-            target: target,
-            pipeline: pipeline,
-            config: config)
+        described_class.define(
+          target: target,
+          pipeline: pipeline,
+          config: config
+        )
       end
 
-      rake_task = Rake::Task["pipeline:set"]
+      rake_task = Rake::Task['pipeline:set']
 
       expect(rake_task.creator.var_files).to(be_nil)
     end
@@ -265,14 +315,15 @@ describe RakeFly::TaskSets::Pipeline do
       non_interactive = true
 
       namespace :pipeline do
-        subject.define(
-            target: target,
-            pipeline: pipeline,
-            config: config,
-            non_interactive: non_interactive)
+        described_class.define(
+          target: target,
+          pipeline: pipeline,
+          config: config,
+          non_interactive: non_interactive
+        )
       end
 
-      rake_task = Rake::Task["pipeline:set"]
+      rake_task = Rake::Task['pipeline:set']
 
       expect(rake_task.creator.non_interactive).to(eq(non_interactive))
     end
@@ -283,13 +334,14 @@ describe RakeFly::TaskSets::Pipeline do
       config = 'ci/pipeline.yml'
 
       namespace :pipeline do
-        subject.define(
-            target: target,
-            pipeline: pipeline,
-            config: config)
+        described_class.define(
+          target: target,
+          pipeline: pipeline,
+          config: config
+        )
       end
 
-      rake_task = Rake::Task["pipeline:set"]
+      rake_task = Rake::Task['pipeline:set']
 
       expect(rake_task.creator.non_interactive).to(be_nil)
     end
@@ -301,14 +353,15 @@ describe RakeFly::TaskSets::Pipeline do
       config = 'ci/pipeline.yml'
 
       namespace :pipeline do
-        subject.define(
-            target: target,
-            team: team,
-            pipeline: pipeline,
-            config: config)
+        described_class.define(
+          target: target,
+          team: team,
+          pipeline: pipeline,
+          config: config
+        )
       end
 
-      rake_task = Rake::Task["pipeline:set"]
+      rake_task = Rake::Task['pipeline:set']
 
       expect(rake_task.creator.team).to(eq(team))
     end
@@ -319,64 +372,78 @@ describe RakeFly::TaskSets::Pipeline do
       config = 'ci/pipeline.yml'
 
       namespace :pipeline do
-        subject.define(
-            target: target,
-            pipeline: pipeline,
-            config: config)
+        described_class.define(
+          target: target,
+          pipeline: pipeline,
+          config: config
+        )
       end
 
-      rake_task = Rake::Task["pipeline:set"]
+      rake_task = Rake::Task['pipeline:set']
 
       expect(rake_task.creator.team).to(be_nil)
     end
 
     it 'uses the provided set pipeline task name when present' do
       namespace :pipeline do
-        subject.define(
-            target: 'supercorp-ci',
-            pipeline: 'supercorp-something',
-            config: 'ci/pipeline.yml',
+        described_class.define(
+          target: 'supercorp-ci',
+          pipeline: 'supercorp-something',
+          config: 'ci/pipeline.yml',
 
-            set_task_name: :send)
+          set_task_name: :send
+        )
       end
 
-      expect(Rake::Task.task_defined?("pipeline:send"))
-          .to(be(true))
+      expect(Rake.application)
+        .to(have_task_defined('pipeline:send'))
     end
 
     it 'uses the provided argument names when present' do
-      argument_names = [:argument, :names]
+      argument_names = %i[argument names]
 
       namespace :pipeline do
-        subject.define(
-            argument_names: argument_names,
+        described_class.define(
+          argument_names: argument_names,
 
-            target: 'supercorp-ci',
-            pipeline: 'supercorp-something',
-            config: 'ci/pipeline.yml')
+          target: 'supercorp-ci',
+          pipeline: 'supercorp-something',
+          config: 'ci/pipeline.yml'
+        )
       end
 
-      rake_task = Rake::Task["pipeline:set"]
+      rake_task = Rake::Task['pipeline:set']
 
       expect(rake_task.arg_names).to(eq(argument_names))
     end
   end
 
-  context 'unpause task' do
-    it 'configures with target and pipeline' do
+  describe 'unpause task' do
+    it 'configures with target' do
       target = 'supercorp-ci'
+
+      namespace :pipeline do
+        described_class.define(
+          target: target
+        )
+      end
+
+      rake_task = Rake::Task['pipeline:unpause']
+
+      expect(rake_task.creator.target).to(eq(target))
+    end
+
+    it 'configures with pipeline' do
       pipeline = 'supercorp-something'
 
       namespace :pipeline do
-        subject.define(
-            target: target,
-            pipeline: pipeline,
-            config: 'ci/pipeline.yml')
+        described_class.define(
+          pipeline: pipeline
+        )
       end
 
-      rake_task = Rake::Task["pipeline:unpause"]
+      rake_task = Rake::Task['pipeline:unpause']
 
-      expect(rake_task.creator.target).to(eq(target))
       expect(rake_task.creator.pipeline).to(eq(pipeline))
     end
 
@@ -384,18 +451,19 @@ describe RakeFly::TaskSets::Pipeline do
       target = 'supercorp-ci'
       pipeline = 'supercorp-something'
       config = 'ci/pipeline.yml'
-      home_directory = "/some/path/to/home"
+      home_directory = '/some/path/to/home'
 
-      ENV["HOME"] = home_directory
+      ENV['HOME'] = home_directory
 
       namespace :pipeline do
-        subject.define(
-            target: target,
-            pipeline: pipeline,
-            config: config)
+        described_class.define(
+          target: target,
+          pipeline: pipeline,
+          config: config
+        )
       end
 
-      rake_task = Rake::Task["pipeline:unpause"]
+      rake_task = Rake::Task['pipeline:unpause']
 
       expect(rake_task.creator.home_directory).to(eq(home_directory))
     end
@@ -404,48 +472,51 @@ describe RakeFly::TaskSets::Pipeline do
       target = 'supercorp-ci'
       pipeline = 'supercorp-something'
       config = 'ci/pipeline.yml'
-      home_directory = "build/fly"
+      home_directory = 'build/fly'
 
       namespace :pipeline do
-        subject.define(
-            target: target,
-            pipeline: pipeline,
-            config: config,
-            home_directory: home_directory)
+        described_class.define(
+          target: target,
+          pipeline: pipeline,
+          config: config,
+          home_directory: home_directory
+        )
       end
 
-      rake_task = Rake::Task["pipeline:unpause"]
+      rake_task = Rake::Task['pipeline:unpause']
 
       expect(rake_task.creator.home_directory).to(eq(home_directory))
     end
 
     it 'uses the provided unpause pipeline task name when present' do
       namespace :pipeline do
-        subject.define(
-            unpause_task_name: :resume,
+        described_class.define(
+          unpause_task_name: :resume,
 
-            target: 'supercorp-ci',
-            pipeline: 'supercorp-something',
-            config: 'ci/pipeline.yml')
+          target: 'supercorp-ci',
+          pipeline: 'supercorp-something',
+          config: 'ci/pipeline.yml'
+        )
       end
 
-      expect(Rake::Task.task_defined?("pipeline:resume"))
-          .to(be(true))
+      expect(Rake.application)
+        .to(have_task_defined('pipeline:resume'))
     end
 
     it 'uses the provided argument names when present' do
-      argument_names = [:argument, :names]
+      argument_names = %i[argument names]
 
       namespace :pipeline do
-        subject.define(
-            argument_names: argument_names,
+        described_class.define(
+          argument_names: argument_names,
 
-            target: 'supercorp-ci',
-            pipeline: 'supercorp-something',
-            config: 'ci/pipeline.yml')
+          target: 'supercorp-ci',
+          pipeline: 'supercorp-something',
+          config: 'ci/pipeline.yml'
+        )
       end
 
-      rake_task = Rake::Task["pipeline:unpause"]
+      rake_task = Rake::Task['pipeline:unpause']
 
       expect(rake_task.arg_names).to(eq(argument_names))
     end
@@ -457,14 +528,15 @@ describe RakeFly::TaskSets::Pipeline do
       config = 'ci/pipeline.yml'
 
       namespace :pipeline do
-        subject.define(
-            target: target,
-            team: team,
-            pipeline: pipeline,
-            config: config)
+        described_class.define(
+          target: target,
+          team: team,
+          pipeline: pipeline,
+          config: config
+        )
       end
 
-      rake_task = Rake::Task["pipeline:unpause"]
+      rake_task = Rake::Task['pipeline:unpause']
 
       expect(rake_task.creator.team).to(eq(team))
     end
@@ -475,101 +547,156 @@ describe RakeFly::TaskSets::Pipeline do
       config = 'ci/pipeline.yml'
 
       namespace :pipeline do
-        subject.define(
-            target: target,
-            pipeline: pipeline,
-            config: config)
+        described_class.define(
+          target: target,
+          pipeline: pipeline,
+          config: config
+        )
       end
 
-      rake_task = Rake::Task["pipeline:unpause"]
+      rake_task = Rake::Task['pipeline:unpause']
 
       expect(rake_task.creator.team).to(be_nil)
     end
   end
 
-  context 'push task' do
-    it 'configures with target and pipeline' do
+  describe 'push task' do
+    it 'configures with target' do
       target = 'supercorp-ci'
+
+      namespace :pipeline do
+        described_class.define(
+          target: target
+        )
+      end
+
+      rake_task = Rake::Task['pipeline:push']
+
+      expect(rake_task.creator.target).to(eq(target))
+    end
+
+    it 'configures with pipeline' do
       pipeline = 'supercorp-something'
 
       namespace :pipeline do
-        subject.define(
-            target: target,
-            pipeline: pipeline,
-            config: 'ci/pipeline.yml')
+        described_class.define(
+          pipeline: pipeline
+        )
       end
 
-      rake_task = Rake::Task["pipeline:push"]
+      rake_task = Rake::Task['pipeline:push']
 
-      expect(rake_task.creator.target).to(eq(target))
       expect(rake_task.creator.pipeline).to(eq(pipeline))
     end
 
     it 'uses the provided push pipeline task name when present' do
       namespace :pipeline do
-        subject.define(
-            push_task_name: :publish,
+        described_class.define(
+          push_task_name: :publish,
 
-            target: 'supercorp-ci',
-            pipeline: 'supercorp-something',
-            config: 'ci/pipeline.yml')
+          target: 'supercorp-ci',
+          pipeline: 'supercorp-something',
+          config: 'ci/pipeline.yml'
+        )
       end
 
-      expect(Rake::Task.task_defined?("pipeline:publish")).to(be(true))
+      expect(Rake.application)
+        .to(have_task_defined('pipeline:publish'))
     end
 
-    it 'uses the provided get, set and unpause pipeline task names ' +
-        'when present' do
+    it 'uses the provided get pipeline task name when present' do
       namespace :pipeline do
-        subject.define(
-            get_task_name: :fetch,
-            set_task_name: :send,
-            unpause_task_name: :resume,
+        described_class.define(
+          get_task_name: :fetch,
 
-            target: 'supercorp-ci',
-            pipeline: 'supercorp-something',
-            config: 'ci/pipeline.yml')
+          target: 'supercorp-ci',
+          pipeline: 'supercorp-something',
+          config: 'ci/pipeline.yml'
+        )
       end
 
-      rake_task = Rake::Task["pipeline:push"]
+      rake_task = Rake::Task['pipeline:push']
 
       expect(rake_task.creator.get_task_name).to(eq(:fetch))
+    end
+
+    it 'uses the set pipeline task name when present' do
+      namespace :pipeline do
+        described_class.define(
+          set_task_name: :send,
+
+          target: 'supercorp-ci',
+          pipeline: 'supercorp-something',
+          config: 'ci/pipeline.yml'
+        )
+      end
+
+      rake_task = Rake::Task['pipeline:push']
+
       expect(rake_task.creator.set_task_name).to(eq(:send))
+    end
+
+    it 'uses the provided unpause pipeline task names when present' do
+      namespace :pipeline do
+        described_class.define(
+          unpause_task_name: :resume,
+
+          target: 'supercorp-ci',
+          pipeline: 'supercorp-something',
+          config: 'ci/pipeline.yml'
+        )
+      end
+
+      rake_task = Rake::Task['pipeline:push']
+
       expect(rake_task.creator.unpause_task_name).to(eq(:resume))
     end
 
     it 'uses the provided argument names when present' do
-      argument_names = [:argument, :names]
+      argument_names = %i[argument names]
 
       namespace :pipeline do
-        subject.define(
-            argument_names: argument_names,
+        described_class.define(
+          argument_names: argument_names,
 
-            target: 'supercorp-ci',
-            pipeline: 'supercorp-something',
-            config: 'ci/pipeline.yml')
+          target: 'supercorp-ci',
+          pipeline: 'supercorp-something',
+          config: 'ci/pipeline.yml'
+        )
       end
 
-      rake_task = Rake::Task["pipeline:push"]
+      rake_task = Rake::Task['pipeline:push']
 
       expect(rake_task.arg_names).to(eq(argument_names))
     end
   end
 
-  context 'destroy task' do
-    it 'configures with target and pipeline' do
+  describe 'destroy task' do
+    it 'configures with target' do
       target = 'supercorp-ci'
+
+      namespace :pipeline do
+        described_class.define(
+          target: target
+        )
+      end
+
+      rake_task = Rake::Task['pipeline:destroy']
+
+      expect(rake_task.creator.target).to(eq(target))
+    end
+
+    it 'configures with pipeline' do
       pipeline = 'supercorp-something'
 
       namespace :pipeline do
-        subject.define(
-            target: target,
-            pipeline: pipeline)
+        described_class.define(
+          pipeline: pipeline
+        )
       end
 
-      rake_task = Rake::Task["pipeline:destroy"]
+      rake_task = Rake::Task['pipeline:destroy']
 
-      expect(rake_task.creator.target).to(eq(target))
       expect(rake_task.creator.pipeline).to(eq(pipeline))
     end
 
@@ -579,13 +706,14 @@ describe RakeFly::TaskSets::Pipeline do
       non_interactive = true
 
       namespace :pipeline do
-        subject.define(
-            target: target,
-            pipeline: pipeline,
-            non_interactive: non_interactive)
+        described_class.define(
+          target: target,
+          pipeline: pipeline,
+          non_interactive: non_interactive
+        )
       end
 
-      rake_task = Rake::Task["pipeline:destroy"]
+      rake_task = Rake::Task['pipeline:destroy']
 
       expect(rake_task.creator.non_interactive).to(eq(non_interactive))
     end
@@ -595,12 +723,13 @@ describe RakeFly::TaskSets::Pipeline do
       pipeline = 'supercorp-something'
 
       namespace :pipeline do
-        subject.define(
-            target: target,
-            pipeline: pipeline)
+        described_class.define(
+          target: target,
+          pipeline: pipeline
+        )
       end
 
-      rake_task = Rake::Task["pipeline:destroy"]
+      rake_task = Rake::Task['pipeline:destroy']
 
       expect(rake_task.creator.non_interactive).to(be_nil)
     end
@@ -611,13 +740,14 @@ describe RakeFly::TaskSets::Pipeline do
       pipeline = 'supercorp-something'
 
       namespace :pipeline do
-        subject.define(
-            target: target,
-            team: team,
-            pipeline: pipeline)
+        described_class.define(
+          target: target,
+          team: team,
+          pipeline: pipeline
+        )
       end
 
-      rake_task = Rake::Task["pipeline:destroy"]
+      rake_task = Rake::Task['pipeline:destroy']
 
       expect(rake_task.creator.team).to(eq(team))
     end
@@ -627,12 +757,13 @@ describe RakeFly::TaskSets::Pipeline do
       pipeline = 'supercorp-something'
 
       namespace :pipeline do
-        subject.define(
-            target: target,
-            pipeline: pipeline)
+        described_class.define(
+          target: target,
+          pipeline: pipeline
+        )
       end
 
-      rake_task = Rake::Task["pipeline:destroy"]
+      rake_task = Rake::Task['pipeline:destroy']
 
       expect(rake_task.creator.team).to(be_nil)
     end
@@ -640,17 +771,18 @@ describe RakeFly::TaskSets::Pipeline do
     it 'uses a home directory of ENV["HOME"] by default' do
       target = 'supercorp-ci'
       pipeline = 'supercorp-something'
-      home_directory = "/some/path/to/home"
+      home_directory = '/some/path/to/home'
 
-      ENV["HOME"] = home_directory
+      ENV['HOME'] = home_directory
 
       namespace :pipeline do
-        subject.define(
-            target: target,
-            pipeline: pipeline)
+        described_class.define(
+          target: target,
+          pipeline: pipeline
+        )
       end
 
-      rake_task = Rake::Task["pipeline:destroy"]
+      rake_task = Rake::Task['pipeline:destroy']
 
       expect(rake_task.creator.home_directory).to(eq(home_directory))
     end
@@ -658,45 +790,48 @@ describe RakeFly::TaskSets::Pipeline do
     it 'uses the provided home directory when supplied' do
       target = 'supercorp-ci'
       pipeline = 'supercorp-something'
-      home_directory = "/tmp/fly"
+      home_directory = '/tmp/fly'
 
       namespace :pipeline do
-        subject.define(
-            target: target,
-            pipeline: pipeline,
-            home_directory: home_directory)
+        described_class.define(
+          target: target,
+          pipeline: pipeline,
+          home_directory: home_directory
+        )
       end
 
-      rake_task = Rake::Task["pipeline:destroy"]
+      rake_task = Rake::Task['pipeline:destroy']
 
       expect(rake_task.creator.home_directory).to(eq(home_directory))
     end
 
     it 'uses the provided destroy task name when present' do
       namespace :pipeline do
-        subject.define(
-            target: 'supercorp-ci',
-            pipeline: 'supercorp-something',
+        described_class.define(
+          target: 'supercorp-ci',
+          pipeline: 'supercorp-something',
 
-            destroy_task_name: :delete)
+          destroy_task_name: :delete
+        )
       end
 
-      expect(Rake::Task.task_defined?("pipeline:delete"))
-          .to(be(true))
+      expect(Rake.application)
+        .to(have_task_defined('pipeline:delete'))
     end
 
     it 'uses the provided argument names when present' do
-      argument_names = [:argument, :names]
+      argument_names = %i[argument names]
 
       namespace :pipeline do
-        subject.define(
-            argument_names: argument_names,
+        described_class.define(
+          argument_names: argument_names,
 
-            target: 'supercorp-ci',
-            pipeline: 'supercorp-something')
+          target: 'supercorp-ci',
+          pipeline: 'supercorp-something'
+        )
       end
 
-      rake_task = Rake::Task["pipeline:destroy"]
+      rake_task = Rake::Task['pipeline:destroy']
 
       expect(rake_task.arg_names).to(eq(argument_names))
     end

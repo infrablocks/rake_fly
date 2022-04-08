@@ -1,10 +1,12 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 require 'fileutils'
 
 describe RakeFly::Tasks::Pipeline::Get do
-  include_context :rake
+  include_context 'rake'
 
-  before(:each) do
+  before do
     namespace :fly do
       task :ensure
     end
@@ -16,69 +18,72 @@ describe RakeFly::Tasks::Pipeline::Get do
 
   it 'adds a get task in the namespace in which it is created' do
     namespace :pipeline do
-      subject.define do |t|
+      described_class.define do |t|
         t.target = 'supercorp-ci'
         t.pipeline = 'supercorp-something'
       end
     end
 
-    expect(Rake::Task['pipeline:get']).not_to be_nil
+    expect(Rake.application)
+      .to(have_task_defined('pipeline:get'))
   end
 
   it 'gives the get task a description' do
     namespace :pipeline do
-      subject.define(
-          target: 'supercorp-ci',
-          pipeline: 'supercorp-something')
+      described_class.define(
+        target: 'supercorp-ci',
+        pipeline: 'supercorp-something'
+      )
     end
 
-    expect(Rake::Task["pipeline:get"].full_comment)
-        .to(eq('Get pipeline supercorp-something for target supercorp-ci'))
+    expect(Rake::Task['pipeline:get'].full_comment)
+      .to(eq('Get pipeline supercorp-something for target supercorp-ci'))
   end
 
   it 'allows the task name to be overridden' do
     namespace :pipeline do
-      subject.define(name: :fetch) do |t|
+      described_class.define(name: :fetch) do |t|
         t.target = 'supercorp-ci'
         t.pipeline = 'supercorp-something'
       end
     end
 
-    expect(Rake::Task['pipeline:fetch']).not_to be_nil
+    expect(Rake.application)
+      .to(have_task_defined('pipeline:fetch'))
   end
 
   it 'allows multiple get tasks to be declared' do
     namespace :something1 do
-      subject.define do |t|
+      described_class.define do |t|
         t.target = 'supercorp-ci'
         t.pipeline = 'supercorp-something1'
       end
     end
 
     namespace :something2 do
-      subject.define do |t|
+      described_class.define do |t|
         t.target = 'supercorp-ci'
         t.pipeline = 'supercorp-something2'
       end
     end
 
-    something1_get_pipeline = Rake::Task['something1:get']
-    something2_get_pipeline = Rake::Task['something2:get']
-
-    expect(something1_get_pipeline).not_to be_nil
-    expect(something2_get_pipeline).not_to be_nil
+    expect(Rake.application)
+      .to(have_tasks_defined(
+            %w[something1:get
+               something2:get]
+          ))
   end
 
   it 'depends on the fly:ensure task by default' do
     namespace :something do
-      subject.define do |t|
+      described_class.define do |t|
         t.target = 'supercorp-ci'
         t.pipeline = 'supercorp-something2'
       end
     end
 
     expect(Rake::Task['something:get'].prerequisite_tasks)
-        .to(include(Rake::Task['fly:ensure']))
+      .to(include(Rake::Task['fly:ensure']))
   end
 
   it 'depends on the provided fly ensure task if specified' do
@@ -89,26 +94,26 @@ describe RakeFly::Tasks::Pipeline::Get do
     end
 
     namespace :something do
-      subject.define(fly_ensure_task_name: 'tools:fly:ensure') do |t|
+      described_class.define(fly_ensure_task_name: 'tools:fly:ensure') do |t|
         t.target = 'supercorp-ci'
         t.pipeline = 'supercorp-something2'
       end
     end
 
     expect(Rake::Task['something:get'].prerequisite_tasks)
-        .to(include(Rake::Task['tools:fly:ensure']))
+      .to(include(Rake::Task['tools:fly:ensure']))
   end
 
   it 'depends on the authentication:ensure task by default' do
     namespace :something do
-      subject.define do |t|
+      described_class.define do |t|
         t.target = 'supercorp-ci'
         t.pipeline = 'supercorp-something2'
       end
     end
 
     expect(Rake::Task['something:get'].prerequisite_tasks)
-        .to(include(Rake::Task['authentication:ensure']))
+      .to(include(Rake::Task['authentication:ensure']))
   end
 
   it 'depends on the provided authentication ensure task if specified' do
@@ -117,19 +122,20 @@ describe RakeFly::Tasks::Pipeline::Get do
     end
 
     namespace :something do
-      subject.define(
-          authentication_ensure_task_name: 'auth:ensure') do |t|
+      described_class.define(
+        authentication_ensure_task_name: 'auth:ensure'
+      ) do |t|
         t.target = 'supercorp-ci'
         t.pipeline = 'supercorp-something2'
       end
     end
 
     expect(Rake::Task['something:get'].prerequisite_tasks)
-        .to(include(Rake::Task['auth:ensure']))
+      .to(include(Rake::Task['auth:ensure']))
   end
 
   it 'configures the task with the provided arguments if specified' do
-    argument_names = [:deployment_identifier, :region]
+    argument_names = %i[deployment_identifier region]
 
     namespace :tools do
       namespace :fly do
@@ -138,22 +144,23 @@ describe RakeFly::Tasks::Pipeline::Get do
     end
 
     namespace :something do
-      subject.define(argument_names: argument_names) do |t|
+      described_class.define(argument_names: argument_names) do |t|
         t.target = 'supercorp-ci'
         t.pipeline = 'supercorp-something2'
       end
     end
 
     expect(Rake::Task['something:get'].arg_names)
-        .to(eq(argument_names))
+      .to(eq(argument_names))
   end
 
   it 'defaults to a home directory of ENV["HOME"]' do
-    ENV["HOME"] = "/some/home/directory"
+    ENV['HOME'] = '/some/home/directory'
 
-    subject.define(
-        target: 'supercorp-ci',
-        pipeline: 'supercorp-something')
+    described_class.define(
+      target: 'supercorp-ci',
+      pipeline: 'supercorp-something'
+    )
 
     rake_task = Rake::Task['get']
     test_task = rake_task.creator
@@ -162,10 +169,11 @@ describe RakeFly::Tasks::Pipeline::Get do
   end
 
   it 'uses the provided home directory' do
-    subject.define(
-        target: 'supercorp-ci',
-        pipeline: 'supercorp-something',
-        home_directory: 'build/fly')
+    described_class.define(
+      target: 'supercorp-ci',
+      pipeline: 'supercorp-something',
+      home_directory: 'build/fly'
+    )
 
     rake_task = Rake::Task['get']
     test_task = rake_task.creator
@@ -178,25 +186,28 @@ describe RakeFly::Tasks::Pipeline::Get do
     pipeline = 'supercorp-something'
     home_directory = 'build/fly'
 
-    subject.define do |t|
+    described_class.define do |t|
       t.target = target
       t.pipeline = pipeline
       t.home_directory = home_directory
     end
 
-    stub_puts
+    stub_output
     stub_ruby_fly
 
-    expect(RubyFly)
-        .to(receive(:get_pipeline)
-            .with(hash_including(
-                target: target,
-                pipeline: pipeline,
-                environment: {
-                    "HOME" => home_directory
-                })))
+    allow(RubyFly).to(receive(:get_pipeline))
 
     Rake::Task['get'].invoke
+
+    expect(RubyFly)
+      .to(have_received(:get_pipeline)
+            .with(hash_including(
+                    target: target,
+                    pipeline: pipeline,
+                    environment: {
+                      'HOME' => home_directory
+                    }
+                  )))
   end
 
   it 'uses the provided target when supplied' do
@@ -204,25 +215,28 @@ describe RakeFly::Tasks::Pipeline::Get do
     pipeline = 'supercorp-something'
     home_directory = 'build/fly'
 
-    subject.define(argument_names: [:target]) do |t, args|
+    described_class.define(argument_names: [:target]) do |t, args|
       t.target = args.target
       t.pipeline = pipeline
       t.home_directory = home_directory
     end
 
-    stub_puts
+    stub_output
     stub_ruby_fly
 
-    expect(RubyFly)
-        .to(receive(:get_pipeline)
-            .with(hash_including(
-                target: target,
-                pipeline: pipeline,
-                environment: {
-                    "HOME" => home_directory
-                })))
+    allow(RubyFly).to(receive(:get_pipeline))
 
     Rake::Task['get'].invoke(target)
+
+    expect(RubyFly)
+      .to(have_received(:get_pipeline)
+            .with(hash_including(
+                    target: target,
+                    pipeline: pipeline,
+                    environment: {
+                      'HOME' => home_directory
+                    }
+                  )))
   end
 
   it 'uses the provided pipeline when supplied' do
@@ -230,29 +244,35 @@ describe RakeFly::Tasks::Pipeline::Get do
     pipeline = 'supercorp-something'
     home_directory = 'build/fly'
 
-    subject.define(argument_names: [:pipeline]) do |t, args|
+    described_class.define(argument_names: [:pipeline]) do |t, args|
       t.target = target
       t.pipeline = args.pipeline
       t.home_directory = home_directory
     end
 
-    stub_puts
+    stub_output
     stub_ruby_fly
 
-    expect(RubyFly)
-        .to(receive(:get_pipeline)
-            .with(hash_including(
-                target: target,
-                pipeline: pipeline,
-                environment: {
-                    "HOME" => home_directory
-                })))
+    allow(RubyFly).to(receive(:get_pipeline))
 
     Rake::Task['get'].invoke(pipeline)
+
+    expect(RubyFly)
+      .to(have_received(:get_pipeline)
+            .with(hash_including(
+                    target: target,
+                    pipeline: pipeline,
+                    environment: {
+                      'HOME' => home_directory
+                    }
+                  )))
   end
 
-  def stub_puts
-    allow_any_instance_of(Kernel).to(receive(:puts))
+  def stub_output
+    %i[print puts].each do |method|
+      allow($stdout).to(receive(method))
+      allow($stderr).to(receive(method))
+    end
   end
 
   def stub_ruby_fly

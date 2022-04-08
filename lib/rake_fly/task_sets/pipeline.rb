@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rake_factory'
 
 require_relative '../tasks/pipeline/get'
@@ -22,7 +24,7 @@ module RakeFly
       parameter :non_interactive
 
       parameter :home_directory,
-          default: RakeFactory::DynamicValue.new { |_| ENV['HOME'] }
+                default: RakeFactory::DynamicValue.new { |_| ENV['HOME'] }
 
       parameter :get_task_name, default: :get
       parameter :set_task_name, default: :set
@@ -33,25 +35,25 @@ module RakeFly
       parameter :fly_ensure_task_name, default: :'fly:ensure'
 
       task Tasks::Pipeline::Get,
-          name: RakeFactory::DynamicValue.new { |ts|
-            ts.get_task_name
-          }
+           name: RakeFactory::DynamicValue.new { |ts|
+             ts.get_task_name
+           }
       task Tasks::Pipeline::Set,
-          name: RakeFactory::DynamicValue.new { |ts|
-            ts.set_task_name
-          }
+           name: RakeFactory::DynamicValue.new { |ts|
+             ts.set_task_name
+           }
       task Tasks::Pipeline::Unpause,
-          name: RakeFactory::DynamicValue.new { |ts|
-            ts.unpause_task_name
-          }
+           name: RakeFactory::DynamicValue.new { |ts|
+             ts.unpause_task_name
+           }
       task Tasks::Pipeline::Push,
-          name: RakeFactory::DynamicValue.new { |ts|
-            ts.push_task_name
-          }
+           name: RakeFactory::DynamicValue.new { |ts|
+             ts.push_task_name
+           }
       task Tasks::Pipeline::Destroy,
-          name: RakeFactory::DynamicValue.new { |ts|
-            ts.destroy_task_name
-          }
+           name: RakeFactory::DynamicValue.new { |ts|
+             ts.destroy_task_name
+           }
     end
   end
 end

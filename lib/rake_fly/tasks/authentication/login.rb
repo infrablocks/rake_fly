@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'ruby_fly'
 require 'rake_factory'
 require 'concourse'
@@ -13,14 +15,15 @@ module RakeFly
 
           def execute(task)
             RubyFly.login(
-                target: task.target,
-                concourse_url: task.concourse_url,
-                username: task.username,
-                password: task.password,
-                team: task.team,
-                environment: {
-                    "HOME" => task.home_directory
-                })
+              target: task.target,
+              concourse_url: task.concourse_url,
+              username: task.username,
+              password: task.password,
+              team: task.team,
+              environment: {
+                'HOME' => task.home_directory
+              }
+            )
           end
         end
 
@@ -30,12 +33,22 @@ module RakeFly
           end
 
           def execute(task)
-            client = Concourse::Client.new(
-                url: task.concourse_url)
-            token = client.for_skymarshal.create_token(
-                username: task.username,
-                password: task.password)
+            save_target(task, fetch_token(task))
+          end
 
+          private
+
+          def fetch_token(task)
+            Concourse::Client
+              .new(url: task.concourse_url)
+              .for_skymarshal
+              .create_token(
+                username: task.username,
+                password: task.password
+              )
+          end
+
+          def save_target(task, token)
             rc = RubyFly::RC.load(home: task.home_directory)
             rc.add_or_update_target(task.target) do |target|
               target.api = task.concourse_url
@@ -47,15 +60,15 @@ module RakeFly
         end
 
         default_name :login
-        default_prerequisites RakeFactory::DynamicValue.new { |t|
+        default_prerequisites(RakeFactory::DynamicValue.new do |t|
           t.backend.new.resolve_prerequisites(t)
-        }
-        default_description RakeFactory::DynamicValue.new { |t|
+        end)
+        default_description(RakeFactory::DynamicValue.new do |t|
           concourse_url = t.concourse_url || '<derived>'
           target = t.target || '<derived>'
 
           "Login to #{concourse_url} as target #{target}"
-        }
+        end)
 
         parameter :concourse_url, required: true
         parameter :team, default: 'main'
@@ -66,12 +79,14 @@ module RakeFly
         parameter :backend, default: ApiBackend
 
         parameter :home_directory,
-            default: RakeFactory::DynamicValue.new { |_| ENV['HOME'] }
+                  default: RakeFactory::DynamicValue.new { |_| ENV['HOME'] }
 
-        parameter :fly_ensure_task_name, :default => :'fly:ensure'
+        parameter :fly_ensure_task_name, default: :'fly:ensure'
 
         action do |t|
-          puts "Logging in to #{t.concourse_url} as target #{t.target}..."
+          $stdout.puts(
+            "Logging in to #{t.concourse_url} as target #{t.target}..."
+          )
           t.backend.new.execute(t)
         end
       end

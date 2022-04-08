@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'ruby_fly'
 require 'rake_factory'
 require 'concourse'
@@ -7,35 +9,36 @@ module RakeFly
     module Authentication
       class Ensure < RakeFactory::Task
         default_name :ensure
-        default_prerequisites RakeFactory::DynamicValue.new { |t|
+        default_prerequisites(RakeFactory::DynamicValue.new do |t|
           [t.fly_ensure_task_name]
-        }
-        default_description RakeFactory::DynamicValue.new { |t|
+        end)
+        default_description(RakeFactory::DynamicValue.new do |t|
           target = t.target || '<derived>'
 
           "Ensure logged in for target #{target}"
-        }
+        end)
 
         parameter :target, required: true
 
         parameter :home_directory,
-            default: RakeFactory::DynamicValue.new { |_| ENV['HOME'] }
+                  default: RakeFactory::DynamicValue.new { |_| ENV['HOME'] }
 
-        parameter :login_task_name, :default => :login
+        parameter :login_task_name, default: :login
 
-        parameter :fly_ensure_task_name, :default => :'fly:ensure'
+        parameter :fly_ensure_task_name, default: :'fly:ensure'
 
         action do |t, args|
-          puts "Ensuring target #{t.target} is logged in..."
+          $stdout.puts("Ensuring target #{t.target} is logged in...")
           status = RubyFly.status(
-              target: t.target,
-              environment: {
-                  "HOME" => t.home_directory
-              })
+            target: t.target,
+            environment: {
+              'HOME' => t.home_directory
+            }
+          )
           if status == :logged_in
-            puts "Already logged in. Continuing..."
+            $stdout.puts('Already logged in. Continuing...')
           else
-            puts "Not logged in. Logging in..."
+            $stdout.puts('Not logged in. Logging in...')
             t.application[t.login_task_name, t.scope].invoke(*args)
           end
         end

@@ -1,17 +1,19 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 require 'concourse'
 
 describe RakeFly::Tasks::Authentication::Login do
-  include_context :rake
+  include_context 'rake'
 
-  before(:each) do
+  before do
     namespace :fly do
       task :ensure
     end
   end
 
   def define_task(opts = {}, &block)
-    opts = {namespace: :authentication, additional_tasks: []}.merge(opts)
+    opts = { namespace: :authentication, additional_tasks: [] }.merge(opts)
 
     namespace opts[:namespace] do
       opts[:additional_tasks].each do |t|
@@ -24,81 +26,87 @@ describe RakeFly::Tasks::Authentication::Login do
 
   it 'adds a login task in the namespace in which it is created' do
     define_task do |t|
-      t.concourse_url = "https://concourse.example.com"
+      t.concourse_url = 'https://concourse.example.com'
       t.target = 'supercorp-ci'
       t.username = 'some-user'
       t.password = 'super-secure'
     end
 
-    expect(Rake::Task['authentication:login']).not_to be_nil
+    expect(Rake.application)
+      .to(have_task_defined('authentication:login'))
   end
 
   it 'gives the login task a description' do
     define_task(
-        concourse_url: "https://concourse.example.com",
-        target: 'supercorp-ci',
-        username: 'some-user',
-        password: 'super-secure'
+      concourse_url: 'https://concourse.example.com',
+      target: 'supercorp-ci',
+      username: 'some-user',
+      password: 'super-secure'
     )
 
-    expect(Rake::Task["authentication:login"].full_comment)
-        .to(eq('Login to https://concourse.example.com as target supercorp-ci'))
+    expect(Rake::Task['authentication:login'].full_comment)
+      .to(eq('Login to https://concourse.example.com as target supercorp-ci'))
   end
 
   it 'allows multiple login tasks to be declared' do
     define_task(
-        namespace: :authenticate1,
-        concourse_url: "https://concourse.example.com",
-        target: 'supercorp-ci',
-        username: 'some-user',
-        password: 'super-secure')
+      namespace: :authenticate1,
+      concourse_url: 'https://concourse.example.com',
+      target: 'supercorp-ci',
+      username: 'some-user',
+      password: 'super-secure'
+    )
     define_task(
-        namespace: :authenticate2,
-        concourse_url: "https://concourse.example.com",
-        target: 'supercorp-ci',
-        username: 'some-user',
-        password: 'super-secure')
+      namespace: :authenticate2,
+      concourse_url: 'https://concourse.example.com',
+      target: 'supercorp-ci',
+      username: 'some-user',
+      password: 'super-secure'
+    )
 
-    authenticate1_login = Rake::Task['authenticate1:login']
-    authenticate2_login = Rake::Task['authenticate2:login']
-
-    expect(authenticate1_login).not_to be_nil
-    expect(authenticate2_login).not_to be_nil
+    expect(Rake.application)
+      .to(have_tasks_defined(
+            %w[authenticate1:login
+               authenticate2:login]
+          ))
   end
 
   it 'defaults to the API backend' do
     define_task(
-        concourse_url: "https://concourse.example.com",
-        target: 'supercorp-ci',
-        username: 'some-user',
-        password: 'super-secure')
+      concourse_url: 'https://concourse.example.com',
+      target: 'supercorp-ci',
+      username: 'some-user',
+      password: 'super-secure'
+    )
 
     rake_task = Rake::Task['authentication:login']
     test_task = rake_task.creator
 
     expect(test_task.backend)
-        .to(eq(RakeFly::Tasks::Authentication::Login::ApiBackend))
+      .to(eq(RakeFly::Tasks::Authentication::Login::ApiBackend))
   end
 
   it 'uses the provided backend' do
     define_task(
-        concourse_url: "https://concourse.example.com",
-        target: 'supercorp-ci',
-        backend: RakeFly::Tasks::Authentication::Login::FlyBackend)
+      concourse_url: 'https://concourse.example.com',
+      target: 'supercorp-ci',
+      backend: RakeFly::Tasks::Authentication::Login::FlyBackend
+    )
 
     rake_task = Rake::Task['authentication:login']
     test_task = rake_task.creator
 
     expect(test_task.backend)
-        .to(eq(RakeFly::Tasks::Authentication::Login::FlyBackend))
+      .to(eq(RakeFly::Tasks::Authentication::Login::FlyBackend))
   end
 
   it 'defaults to the main team' do
     define_task(
-        concourse_url: "https://concourse.example.com",
-        target: 'supercorp-ci',
-        username: 'some-user',
-        password: 'super-secure')
+      concourse_url: 'https://concourse.example.com',
+      target: 'supercorp-ci',
+      username: 'some-user',
+      password: 'super-secure'
+    )
 
     rake_task = Rake::Task['authentication:login']
     test_task = rake_task.creator
@@ -108,11 +116,12 @@ describe RakeFly::Tasks::Authentication::Login do
 
   it 'uses the provided team' do
     define_task(
-        concourse_url: "https://concourse.example.com",
-        target: 'supercorp-ci',
-        team: 'supercorp-team',
-        username: 'some-user',
-        password: 'super-secure')
+      concourse_url: 'https://concourse.example.com',
+      target: 'supercorp-ci',
+      team: 'supercorp-team',
+      username: 'some-user',
+      password: 'super-secure'
+    )
 
     rake_task = Rake::Task['authentication:login']
     test_task = rake_task.creator
@@ -121,13 +130,14 @@ describe RakeFly::Tasks::Authentication::Login do
   end
 
   it 'defaults to a home directory of ENV["HOME"]' do
-    ENV["HOME"] = "/some/home/directory"
+    ENV['HOME'] = '/some/home/directory'
 
     define_task(
-        concourse_url: "https://concourse.example.com",
-        target: 'supercorp-ci',
-        username: 'some-user',
-        password: 'super-secure')
+      concourse_url: 'https://concourse.example.com',
+      target: 'supercorp-ci',
+      username: 'some-user',
+      password: 'super-secure'
+    )
 
     rake_task = Rake::Task['authentication:login']
     test_task = rake_task.creator
@@ -137,11 +147,12 @@ describe RakeFly::Tasks::Authentication::Login do
 
   it 'uses the provided home directory' do
     define_task(
-        concourse_url: "https://concourse.example.com",
-        target: 'supercorp-ci',
-        username: 'some-user',
-        password: 'super-secure',
-        home_directory: 'build/fly')
+      concourse_url: 'https://concourse.example.com',
+      target: 'supercorp-ci',
+      username: 'some-user',
+      password: 'super-secure',
+      home_directory: 'build/fly'
+    )
 
     rake_task = Rake::Task['authentication:login']
     test_task = rake_task.creator
@@ -151,28 +162,28 @@ describe RakeFly::Tasks::Authentication::Login do
 
   it 'has no dependencies by default' do
     define_task do |t|
-      t.concourse_url = "https://concourse.example.com"
+      t.concourse_url = 'https://concourse.example.com'
       t.target = 'supercorp-ci'
       t.username = 'some-user'
       t.password = 'super-secure'
     end
 
     expect(Rake::Task['authentication:login'].prerequisite_tasks)
-        .to(be_empty)
+      .to(be_empty)
   end
 
   it 'configures the task with the provided arguments if specified' do
-    argument_names = [:deployment_identifier, :region]
+    argument_names = %i[deployment_identifier region]
 
     define_task(argument_names: argument_names) do |t|
-      t.concourse_url = "https://concourse.example.com"
+      t.concourse_url = 'https://concourse.example.com'
       t.target = 'supercorp-ci'
       t.username = 'some-user'
       t.password = 'super-secure'
     end
 
     expect(Rake::Task['authentication:login'].arg_names)
-        .to(eq(argument_names))
+      .to(eq(argument_names))
   end
 
   it 'fails if no concourse URL is provided' do
@@ -180,41 +191,42 @@ describe RakeFly::Tasks::Authentication::Login do
       t.target = 'supercorp-ci'
     end
 
-    stub_puts
+    stub_output
 
-    expect {
+    expect do
       Rake::Task['authentication:login'].invoke
-    }.to raise_error(RakeFactory::RequiredParameterUnset)
+    end.to raise_error(RakeFactory::RequiredParameterUnset)
   end
 
   it 'fails if no target is provided' do
     define_task do |t|
-      t.concourse_url = "https://concourse.example.com"
+      t.concourse_url = 'https://concourse.example.com'
     end
 
-    stub_puts
+    stub_output
 
-    expect {
+    expect do
       Rake::Task['authentication:login'].invoke
-    }.to raise_error(RakeFactory::RequiredParameterUnset)
+    end.to raise_error(RakeFactory::RequiredParameterUnset)
   end
 
   context 'when using the API backend' do
     it 'has no dependencies' do
       define_task(
-          backend: RakeFly::Tasks::Authentication::Login::ApiBackend) do |t|
-        t.concourse_url = "https://concourse.example.com"
+        backend: RakeFly::Tasks::Authentication::Login::ApiBackend
+      ) do |t|
+        t.concourse_url = 'https://concourse.example.com'
         t.target = 'supercorp-ci'
         t.username = 'some-user'
         t.password = 'super-secure'
       end
 
       expect(Rake::Task['authentication:login'].prerequisite_tasks)
-          .to(be_empty)
+        .to(be_empty)
     end
 
     it 'logs in via the API and stores the credentials in a fly RC file' do
-      concourse_url = "https://concourse.example.com"
+      concourse_url = 'https://concourse.example.com'
       team_name = 'supercorp-team'
       target_name = 'supercorp-ci'
       username = 'some-user'
@@ -222,7 +234,8 @@ describe RakeFly::Tasks::Authentication::Login do
       home_directory = '/tmp/fly'
 
       define_task(
-          backend: RakeFly::Tasks::Authentication::Login::ApiBackend) do |t|
+        backend: RakeFly::Tasks::Authentication::Login::ApiBackend
+      ) do |t|
         t.concourse_url = concourse_url
         t.team = team_name
         t.target = target_name
@@ -231,59 +244,53 @@ describe RakeFly::Tasks::Authentication::Login do
         t.home_directory = home_directory
       end
 
-      stub_puts
+      stub_output
 
-      concourse_client = double('concourse client')
-      skymarshal_client = double('skymarshal client')
+      concourse_client = instance_double(Concourse::Client)
+      skymarshal_client =
+        instance_double(Concourse::SubClients::SkymarshalClient)
       token = Build::Data.random_token
 
       allow(Concourse::Client)
-          .to(receive(:new)
+        .to(receive(:new)
               .with(hash_including(url: concourse_url))
               .and_return(concourse_client))
       allow(concourse_client)
-          .to(receive(:for_skymarshal)
+        .to(receive(:for_skymarshal)
               .and_return(skymarshal_client))
       allow(skymarshal_client)
-          .to(receive(:create_token)
-              .with(
-                  username: username,
-                  password: password)
+        .to(receive(:create_token)
+              .with(username: username, password: password)
               .and_return(token))
 
       Rake::Task['authentication:login'].invoke
 
-      rc = RubyFly::RC.load(home: home_directory)
-      targets = rc.targets
-      target = rc.find_target(target_name)
+      targets = RubyFly::RC.load(home: home_directory).targets
 
-      expect(targets.count).to(eq(1))
-      expect(target)
-          .to(eq(RubyFly::RC::Target.new(
-              name: target_name.to_sym,
-              api: concourse_url,
-              team: team_name,
-              token: {
-                  type: 'bearer',
-                  value: token.access_token
-              })))
+      expect(targets).to(eq([RubyFly::RC::Target.new(
+        name: target_name.to_sym,
+        api: concourse_url,
+        team: team_name,
+        token: { type: 'bearer', value: token.access_token }
+      )]))
     end
   end
 
-  context 'fly backend' do
+  describe 'fly backend' do
     it 'depends on the fly:ensure task when using fly as the backend' do
       define_task(
-          backend: RakeFly::Tasks::Authentication::Login::FlyBackend) do |t|
-        t.concourse_url = "https://concourse.example.com"
+        backend: RakeFly::Tasks::Authentication::Login::FlyBackend
+      ) do |t|
+        t.concourse_url = 'https://concourse.example.com'
         t.target = 'supercorp-ci'
       end
 
       expect(Rake::Task['authentication:login'].prerequisite_tasks)
-          .to(include(Rake::Task['fly:ensure']))
+        .to(include(Rake::Task['fly:ensure']))
     end
 
-    it 'depends on the provided ensure task if specified and using ' +
-        'fly as backend' do
+    it 'depends on the provided ensure task if specified and using ' \
+       'fly as backend' do
       namespace :tools do
         namespace :fly do
           task :ensure
@@ -291,20 +298,21 @@ describe RakeFly::Tasks::Authentication::Login do
       end
 
       define_task(
-          fly_ensure_task_name: 'tools:fly:ensure',
-          backend: RakeFly::Tasks::Authentication::Login::FlyBackend) do |t|
-        t.concourse_url = "https://concourse.example.com"
+        fly_ensure_task_name: 'tools:fly:ensure',
+        backend: RakeFly::Tasks::Authentication::Login::FlyBackend
+      ) do |t|
+        t.concourse_url = 'https://concourse.example.com'
         t.target = 'supercorp-ci'
       end
 
-      stub_puts
+      stub_output
 
       expect(Rake::Task['authentication:login'].prerequisite_tasks)
-          .to(include(Rake::Task['tools:fly:ensure']))
+        .to(include(Rake::Task['tools:fly:ensure']))
     end
 
     it 'logs in via fly' do
-      concourse_url = "https://concourse.example.com"
+      concourse_url = 'https://concourse.example.com'
       team_name = 'supercorp-team'
       target_name = 'supercorp-ci'
       username = 'some-user'
@@ -312,7 +320,8 @@ describe RakeFly::Tasks::Authentication::Login do
       home_directory = '/tmp/fly'
 
       define_task(
-          backend: RakeFly::Tasks::Authentication::Login::FlyBackend) do |t|
+        backend: RakeFly::Tasks::Authentication::Login::FlyBackend
+      ) do |t|
         t.concourse_url = concourse_url
         t.team = team_name
         t.target = target_name
@@ -321,27 +330,33 @@ describe RakeFly::Tasks::Authentication::Login do
         t.home_directory = home_directory
       end
 
-      stub_puts
+      stub_output
       stub_ruby_fly
 
-      expect(RubyFly)
-          .to(receive(:login)
-              .with(hash_including(
-                  target: target_name,
-                  concourse_url: concourse_url,
-                  username: username,
-                  password: password,
-                  team: team_name,
-                  environment: {
-                      "HOME" => home_directory
-                  })))
+      allow(RubyFly).to(receive(:login))
 
       Rake::Task['authentication:login'].invoke
+
+      expect(RubyFly)
+        .to(have_received(:login)
+              .with(hash_including(
+                      target: target_name,
+                      concourse_url: concourse_url,
+                      username: username,
+                      password: password,
+                      team: team_name,
+                      environment: {
+                        'HOME' => home_directory
+                      }
+                    )))
     end
   end
 
-  def stub_puts
-    allow_any_instance_of(Kernel).to(receive(:puts))
+  def stub_output
+    %i[print puts].each do |method|
+      allow($stdout).to(receive(method))
+      allow($stderr).to(receive(method))
+    end
   end
 
   def stub_ruby_fly
