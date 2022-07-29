@@ -22,7 +22,9 @@ module RakeFly
       parameter :password
 
       parameter :home_directory,
-                default: RakeFactory::DynamicValue.new { |_| ENV['HOME'] }
+                default: RakeFactory::DynamicValue.new { |_|
+                           Dir.home
+                         }
 
       parameter :login_task_name, default: :login
       parameter :ensure_task_name, default: :ensure

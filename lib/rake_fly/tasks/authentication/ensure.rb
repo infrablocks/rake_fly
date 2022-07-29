@@ -21,7 +21,9 @@ module RakeFly
         parameter :target, required: true
 
         parameter :home_directory,
-                  default: RakeFactory::DynamicValue.new { |_| ENV['HOME'] }
+                  default: RakeFactory::DynamicValue.new { |_|
+                             Dir.home
+                           }
 
         parameter :login_task_name, default: :login
 

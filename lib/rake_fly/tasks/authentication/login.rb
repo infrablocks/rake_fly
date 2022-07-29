@@ -79,7 +79,9 @@ module RakeFly
         parameter :backend, default: ApiBackend
 
         parameter :home_directory,
-                  default: RakeFactory::DynamicValue.new { |_| ENV['HOME'] }
+                  default: RakeFactory::DynamicValue.new { |_|
+                             Dir.home
+                           }
 
         parameter :fly_ensure_task_name, default: :'fly:ensure'
 

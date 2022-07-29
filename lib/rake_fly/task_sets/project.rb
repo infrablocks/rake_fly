@@ -36,7 +36,9 @@ module RakeFly
                 default: RakeFactory::DynamicValue.new { |t| t.team }
 
       parameter :home_directory,
-                default: RakeFactory::DynamicValue.new { |_| ENV['HOME'] }
+                default: RakeFactory::DynamicValue.new { |_|
+                           Dir.home
+                         }
 
       parameter :authentication_namespace, default: :authentication
       parameter :authentication_login_task_name, default: :login
@@ -68,7 +70,7 @@ module RakeFly
              ts.pipeline_get_task_name
            },
            authentication_ensure_task_name: RakeFactory::DynamicValue.new { |ts|
-             "#{ts.authentication_namespace}:"\
+             "#{ts.authentication_namespace}:" \
              "#{ts.authentication_ensure_task_name}"
                .to_sym
            }
@@ -77,7 +79,7 @@ module RakeFly
              ts.pipeline_set_task_name
            },
            authentication_ensure_task_name: RakeFactory::DynamicValue.new { |ts|
-             "#{ts.authentication_namespace}:"\
+             "#{ts.authentication_namespace}:" \
              "#{ts.authentication_ensure_task_name}"
                .to_sym
            }
@@ -86,7 +88,7 @@ module RakeFly
              ts.pipeline_unpause_task_name
            },
            authentication_ensure_task_name: RakeFactory::DynamicValue.new { |ts|
-             "#{ts.authentication_namespace}:"\
+             "#{ts.authentication_namespace}:" \
              "#{ts.authentication_ensure_task_name}"
                .to_sym
            }
@@ -108,7 +110,7 @@ module RakeFly
              ts.pipeline_destroy_task_name
            },
            authentication_ensure_task_name: RakeFactory::DynamicValue.new { |ts|
-             "#{ts.authentication_namespace}:"\
+             "#{ts.authentication_namespace}:" \
              "#{ts.authentication_ensure_task_name}"
                .to_sym
            }
