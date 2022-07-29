@@ -24,7 +24,9 @@ module RakeFly
       parameter :non_interactive
 
       parameter :home_directory,
-                default: RakeFactory::DynamicValue.new { |_| ENV['HOME'] }
+                default: RakeFactory::DynamicValue.new { |_|
+                           Dir.home
+                         }
 
       parameter :get_task_name, default: :get
       parameter :set_task_name, default: :set
