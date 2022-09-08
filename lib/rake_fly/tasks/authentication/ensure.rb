@@ -31,6 +31,9 @@ module RakeFly
 
         action do |t, args|
           $stdout.puts("Ensuring target #{t.target} is logged in...")
+
+          Dir.mkdir(t.home_directory)
+
           status = RubyFly.status(
             target: t.target,
             environment: {

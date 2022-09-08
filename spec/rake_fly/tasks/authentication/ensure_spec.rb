@@ -83,6 +83,19 @@ describe RakeFly::Tasks::Authentication::Ensure do
     expect(test_task.home_directory).to(eq('build/fly'))
   end
 
+  it 'creates the provided home directory when it does not exist' do
+    stub_dir
+    define_task(
+      target: 'supercorp-ci',
+      home_directory: 'build/fly'
+    )
+
+    Rake::Task['authentication:ensure'].invoke
+
+    expect(Dir)
+      .to(have_received(:mkdir).with('build/fly'))
+  end
+
   it 'depends on the fly:ensure task by default' do
     define_task do |t|
       t.target = 'supercorp-ci'
@@ -143,6 +156,7 @@ describe RakeFly::Tasks::Authentication::Ensure do
 
     stub_output
     stub_ruby_fly
+    stub_dir
 
     allow(RubyFly)
       .to(receive(:status)
@@ -173,6 +187,7 @@ describe RakeFly::Tasks::Authentication::Ensure do
 
     stub_output
     stub_ruby_fly
+    stub_dir
 
     allow(RubyFly)
       .to(receive(:status)
@@ -201,5 +216,9 @@ describe RakeFly::Tasks::Authentication::Ensure do
 
   def stub_ruby_fly
     allow(RubyFly).to(receive(:status))
+  end
+
+  def stub_dir
+    allow(Dir).to(receive(:mkdir))
   end
 end
