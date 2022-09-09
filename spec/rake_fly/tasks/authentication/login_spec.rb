@@ -160,6 +160,37 @@ describe RakeFly::Tasks::Authentication::Login do
     expect(test_task.home_directory).to(eq('build/fly'))
   end
 
+  it 'creates the provided home directory when it does not exist' do
+    concourse_url = 'https://concourse.example.com'
+    team_name = 'supercorp-team'
+    target_name = 'supercorp-ci'
+    username = 'some-user'
+    password = 'super-secure'
+    home_directory = '/tmp/fly'
+
+    define_task(
+      backend: RakeFly::Tasks::Authentication::Login::ApiBackend
+    ) do |t|
+      t.concourse_url = concourse_url
+      t.team = team_name
+      t.target = target_name
+      t.username = username
+      t.password = password
+      t.home_directory = home_directory
+    end
+
+    stub_output
+    stub_file_utils
+    stub_token_fetch(concourse_url, username, password)
+
+    Rake::Task['authentication:login'].invoke
+
+    expect(FileUtils)
+      .to(have_received(:mkdir_p)
+            .at_least(:once)
+            .with(home_directory))
+  end
+
   it 'has no dependencies by default' do
     define_task do |t|
       t.concourse_url = 'https://concourse.example.com'
@@ -245,23 +276,8 @@ describe RakeFly::Tasks::Authentication::Login do
       end
 
       stub_output
-
-      concourse_client = instance_double(Concourse::Client)
-      skymarshal_client =
-        instance_double(Concourse::SubClients::SkymarshalClient)
-      token = Build::Data.random_token
-
-      allow(Concourse::Client)
-        .to(receive(:new)
-              .with(hash_including(url: concourse_url))
-              .and_return(concourse_client))
-      allow(concourse_client)
-        .to(receive(:for_skymarshal)
-              .and_return(skymarshal_client))
-      allow(skymarshal_client)
-        .to(receive(:create_token)
-              .with(username: username, password: password)
-              .and_return(token))
+      stub_file_utils
+      token = stub_token_fetch(concourse_url, username, password)
 
       Rake::Task['authentication:login'].invoke
 
@@ -332,6 +348,7 @@ describe RakeFly::Tasks::Authentication::Login do
 
       stub_output
       stub_ruby_fly
+      stub_file_utils
 
       allow(RubyFly).to(receive(:login))
 
@@ -350,6 +367,37 @@ describe RakeFly::Tasks::Authentication::Login do
                       }
                     )))
     end
+
+    it 'creates the provided home directory when it does not exist' do
+      concourse_url = 'https://concourse.example.com'
+      team_name = 'supercorp-team'
+      target_name = 'supercorp-ci'
+      username = 'some-user'
+      password = 'super-secure'
+      home_directory = '/tmp/fly'
+
+      define_task(
+        backend: RakeFly::Tasks::Authentication::Login::FlyBackend
+      ) do |t|
+        t.concourse_url = concourse_url
+        t.team = team_name
+        t.target = target_name
+        t.username = username
+        t.password = password
+        t.home_directory = home_directory
+      end
+
+      stub_output
+      stub_ruby_fly
+      stub_file_utils
+
+      allow(RubyFly).to(receive(:login))
+
+      Rake::Task['authentication:login'].invoke
+
+      expect(FileUtils)
+        .to(have_received(:mkdir_p).with(home_directory))
+    end
   end
 
   def stub_output
@@ -361,5 +409,32 @@ describe RakeFly::Tasks::Authentication::Login do
 
   def stub_ruby_fly
     allow(RubyFly).to(receive(:login))
+  end
+
+  def stub_file_utils
+    allow(FileUtils).to(receive(:mkdir_p)).and_call_original
+  end
+
+  def stub_token_fetch(concourse_url, username, password)
+    token = Build::Data.random_token
+    skymarshal_client = stub_skymarshal_client(concourse_url)
+
+    allow(skymarshal_client)
+      .to(receive(:create_token)
+            .with(username: username, password: password)
+            .and_return(token))
+    token
+  end
+
+  def stub_skymarshal_client(concourse_url)
+    skymarshal_client =
+      instance_double(Concourse::SubClients::SkymarshalClient)
+    concourse_client = instance_double(Concourse::Client)
+    allow(Concourse::Client)
+      .to(receive(:new).with(hash_including(url: concourse_url))
+            .and_return(concourse_client))
+    allow(concourse_client)
+      .to(receive(:for_skymarshal).and_return(skymarshal_client))
+    skymarshal_client
   end
 end

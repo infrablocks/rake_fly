@@ -89,6 +89,9 @@ module RakeFly
           $stdout.puts(
             "Logging in to #{t.concourse_url} as target #{t.target}..."
           )
+
+          FileUtils.mkdir_p(t.home_directory)
+
           t.backend.new.execute(t)
         end
       end
