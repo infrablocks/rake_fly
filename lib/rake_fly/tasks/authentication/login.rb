@@ -90,7 +90,7 @@ module RakeFly
             "Logging in to #{t.concourse_url} as target #{t.target}..."
           )
 
-          Dir.mkdir(t.home_directory)
+          FileUtils.mkdir_p(t.home_directory)
 
           t.backend.new.execute(t)
         end

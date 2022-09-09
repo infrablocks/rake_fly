@@ -180,13 +180,15 @@ describe RakeFly::Tasks::Authentication::Login do
     end
 
     stub_output
-    stub_dir
+    stub_file_utils
     stub_token_fetch(concourse_url, username, password)
 
     Rake::Task['authentication:login'].invoke
 
-    expect(Dir)
-      .to(have_received(:mkdir).with(home_directory))
+    expect(FileUtils)
+      .to(have_received(:mkdir_p)
+            .at_least(:once)
+            .with(home_directory))
   end
 
   it 'has no dependencies by default' do
@@ -274,7 +276,7 @@ describe RakeFly::Tasks::Authentication::Login do
       end
 
       stub_output
-      stub_dir
+      stub_file_utils
       token = stub_token_fetch(concourse_url, username, password)
 
       Rake::Task['authentication:login'].invoke
@@ -346,7 +348,7 @@ describe RakeFly::Tasks::Authentication::Login do
 
       stub_output
       stub_ruby_fly
-      stub_dir
+      stub_file_utils
 
       allow(RubyFly).to(receive(:login))
 
@@ -365,6 +367,37 @@ describe RakeFly::Tasks::Authentication::Login do
                       }
                     )))
     end
+
+    it 'creates the provided home directory when it does not exist' do
+      concourse_url = 'https://concourse.example.com'
+      team_name = 'supercorp-team'
+      target_name = 'supercorp-ci'
+      username = 'some-user'
+      password = 'super-secure'
+      home_directory = '/tmp/fly'
+
+      define_task(
+        backend: RakeFly::Tasks::Authentication::Login::FlyBackend
+      ) do |t|
+        t.concourse_url = concourse_url
+        t.team = team_name
+        t.target = target_name
+        t.username = username
+        t.password = password
+        t.home_directory = home_directory
+      end
+
+      stub_output
+      stub_ruby_fly
+      stub_file_utils
+
+      allow(RubyFly).to(receive(:login))
+
+      Rake::Task['authentication:login'].invoke
+
+      expect(FileUtils)
+        .to(have_received(:mkdir_p).with(home_directory))
+    end
   end
 
   def stub_output
@@ -378,8 +411,8 @@ describe RakeFly::Tasks::Authentication::Login do
     allow(RubyFly).to(receive(:login))
   end
 
-  def stub_dir
-    allow(Dir).to(receive(:mkdir))
+  def stub_file_utils
+    allow(FileUtils).to(receive(:mkdir_p)).and_call_original
   end
 
   def stub_token_fetch(concourse_url, username, password)
