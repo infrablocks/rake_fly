@@ -28,7 +28,7 @@ GEM
     docile (1.4.0)
     excon (0.95.0)
     fakefs (1.9.0)
-    faker (3.0.0)
+    faker (3.1.0)
       i18n (>= 1.8.11, < 2)
     faraday (1.10.0)
       faraday-em_http (~> 1.0)
