@@ -85,6 +85,8 @@ describe RakeFly::Tasks::Authentication::Ensure do
 
   it 'creates the provided home directory when it does not exist' do
     stub_file_utils
+    stub_ruby_fly
+
     define_task(
       target: 'supercorp-ci',
       home_directory: 'build/fly'
