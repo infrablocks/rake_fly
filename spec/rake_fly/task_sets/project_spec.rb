@@ -71,7 +71,7 @@ describe RakeFly::TaskSets::Project do
       it 'configures with concourse URL' do
         concourse_url = 'https://concourse.example.com'
 
-        define_tasks(concourse_url: concourse_url)
+        define_tasks(concourse_url:)
 
         rake_task = Rake::Task['authentication:login']
 
@@ -84,7 +84,7 @@ describe RakeFly::TaskSets::Project do
 
         ENV['HOME'] = home_directory
 
-        define_tasks(concourse_url: concourse_url)
+        define_tasks(concourse_url:)
 
         rake_task = Rake::Task['authentication:login']
 
@@ -96,8 +96,8 @@ describe RakeFly::TaskSets::Project do
         home_directory = '/tmp/fly'
 
         define_tasks(
-          concourse_url: concourse_url,
-          home_directory: home_directory
+          concourse_url:,
+          home_directory:
         )
 
         rake_task = Rake::Task['authentication:login']
@@ -110,8 +110,8 @@ describe RakeFly::TaskSets::Project do
         team = 'supercorp'
 
         define_tasks(
-          concourse_url: concourse_url,
-          team: team
+          concourse_url:,
+          team:
         )
 
         rake_task = Rake::Task['authentication:login']
@@ -124,8 +124,8 @@ describe RakeFly::TaskSets::Project do
         target = 'supercorp-ci'
 
         define_tasks(
-          concourse_url: concourse_url,
-          target: target
+          concourse_url:,
+          target:
         )
 
         rake_task = Rake::Task['authentication:login']
@@ -136,7 +136,7 @@ describe RakeFly::TaskSets::Project do
       it 'uses a team of main by default' do
         concourse_url = 'https://concourse.example.com'
 
-        define_tasks(concourse_url: concourse_url)
+        define_tasks(concourse_url:)
 
         rake_task = Rake::Task['authentication:login']
 
@@ -148,8 +148,8 @@ describe RakeFly::TaskSets::Project do
         team = 'supercorp-team'
 
         define_tasks(
-          concourse_url: concourse_url,
-          team: team
+          concourse_url:,
+          team:
         )
 
         rake_task = Rake::Task['authentication:login']
@@ -162,7 +162,7 @@ describe RakeFly::TaskSets::Project do
         backend = RakeFly::Tasks::Authentication::Login::ApiBackend
 
         define_tasks(
-          concourse_url: concourse_url
+          concourse_url:
         )
 
         rake_task = Rake::Task['authentication:login']
@@ -175,8 +175,8 @@ describe RakeFly::TaskSets::Project do
         backend = RakeFly::Tasks::Authentication::Login::FlyBackend
 
         define_tasks(
-          concourse_url: concourse_url,
-          backend: backend
+          concourse_url:,
+          backend:
         )
 
         rake_task = Rake::Task['authentication:login']
@@ -187,7 +187,7 @@ describe RakeFly::TaskSets::Project do
       it 'has no username by default' do
         concourse_url = 'https://concourse.example.com'
 
-        define_tasks(concourse_url: concourse_url)
+        define_tasks(concourse_url:)
 
         rake_task = Rake::Task['authentication:login']
 
@@ -199,8 +199,8 @@ describe RakeFly::TaskSets::Project do
         username = 'supercorp-user'
 
         define_tasks(
-          concourse_url: concourse_url,
-          username: username
+          concourse_url:,
+          username:
         )
 
         rake_task = Rake::Task['authentication:login']
@@ -212,7 +212,7 @@ describe RakeFly::TaskSets::Project do
         concourse_url = 'https://concourse.example.com'
 
         define_tasks(
-          concourse_url: concourse_url
+          concourse_url:
         )
 
         rake_task = Rake::Task['authentication:login']
@@ -225,8 +225,8 @@ describe RakeFly::TaskSets::Project do
         password = 'super-secret'
 
         define_tasks(
-          concourse_url: concourse_url,
-          password: password
+          concourse_url:,
+          password:
         )
 
         rake_task = Rake::Task['authentication:login']
@@ -238,7 +238,7 @@ describe RakeFly::TaskSets::Project do
         argument_names = %i[argument names]
 
         define_tasks(
-          argument_names: argument_names,
+          argument_names:,
 
           concourse_url: 'https://concourse.example.com'
         )
@@ -264,7 +264,7 @@ describe RakeFly::TaskSets::Project do
       it 'uses the team as the target name by default' do
         team = 'supercorp'
 
-        define_tasks(team: team)
+        define_tasks(team:)
 
         rake_task = Rake::Task['authentication:ensure']
 
@@ -287,7 +287,7 @@ describe RakeFly::TaskSets::Project do
         home_directory = '/tmp/fly'
 
         define_tasks(
-          home_directory: home_directory
+          home_directory:
         )
 
         rake_task = Rake::Task['authentication:ensure']
@@ -299,7 +299,7 @@ describe RakeFly::TaskSets::Project do
         argument_names = %i[argument names]
 
         define_tasks(
-          argument_names: argument_names
+          argument_names:
         )
 
         rake_task = Rake::Task['authentication:ensure']
@@ -354,7 +354,7 @@ describe RakeFly::TaskSets::Project do
         pipeline = 'supercorp-something'
 
         define_tasks(
-          pipeline: pipeline
+          pipeline:
         )
 
         rake_task = Rake::Task['pipeline:get']
@@ -365,7 +365,7 @@ describe RakeFly::TaskSets::Project do
       it 'uses the team as the target name by default' do
         team = 'supercorp'
 
-        define_tasks(team: team)
+        define_tasks(team:)
 
         rake_task = Rake::Task['pipeline:get']
 
@@ -375,7 +375,7 @@ describe RakeFly::TaskSets::Project do
       it 'uses the provided target when supplied' do
         target = 'supercorp-ci'
 
-        define_tasks(target: target)
+        define_tasks(target:)
 
         rake_task = Rake::Task['pipeline:get']
 
@@ -398,7 +398,7 @@ describe RakeFly::TaskSets::Project do
         home_directory = '/tmp/fly'
 
         define_tasks(
-          home_directory: home_directory
+          home_directory:
         )
 
         rake_task = Rake::Task['pipeline:get']
@@ -418,7 +418,7 @@ describe RakeFly::TaskSets::Project do
       it 'uses the provided argument names when present' do
         argument_names = %i[argument names]
 
-        define_tasks(argument_names: argument_names)
+        define_tasks(argument_names:)
 
         rake_task = Rake::Task['pipeline:get']
 
@@ -431,7 +431,7 @@ describe RakeFly::TaskSets::Project do
         pipeline = 'supercorp-something'
 
         define_tasks(
-          pipeline: pipeline
+          pipeline:
         )
 
         rake_task = Rake::Task['pipeline:set']
@@ -443,7 +443,7 @@ describe RakeFly::TaskSets::Project do
         config = 'ci/pipeline.yml'
 
         define_tasks(
-          config: config
+          config:
         )
 
         rake_task = Rake::Task['pipeline:set']
@@ -454,7 +454,7 @@ describe RakeFly::TaskSets::Project do
       it 'uses the team as the target name by default' do
         team = 'supercorp'
 
-        define_tasks(team: team)
+        define_tasks(team:)
 
         rake_task = Rake::Task['pipeline:set']
 
@@ -464,7 +464,7 @@ describe RakeFly::TaskSets::Project do
       it 'uses the provided target when supplied' do
         target = 'supercorp-ci'
 
-        define_tasks(target: target)
+        define_tasks(target:)
 
         rake_task = Rake::Task['pipeline:set']
 
@@ -486,7 +486,7 @@ describe RakeFly::TaskSets::Project do
       it 'uses the provided home directory when supplied' do
         home_directory = 'build/fly'
 
-        define_tasks(home_directory: home_directory)
+        define_tasks(home_directory:)
 
         rake_task = Rake::Task['pipeline:set']
 
@@ -499,7 +499,7 @@ describe RakeFly::TaskSets::Project do
           key2: 'value2'
         }
 
-        define_tasks(vars: vars)
+        define_tasks(vars:)
 
         rake_task = Rake::Task['pipeline:set']
 
@@ -517,7 +517,7 @@ describe RakeFly::TaskSets::Project do
       it 'passes var files when available' do
         var_files = ['config/variables.yml']
 
-        define_tasks(var_files: var_files)
+        define_tasks(var_files:)
 
         rake_task = Rake::Task['pipeline:set']
 
@@ -535,7 +535,7 @@ describe RakeFly::TaskSets::Project do
       it 'passes value for non interactive when available' do
         non_interactive = true
 
-        define_tasks(non_interactive: non_interactive)
+        define_tasks(non_interactive:)
 
         rake_task = Rake::Task['pipeline:set']
 
@@ -553,7 +553,7 @@ describe RakeFly::TaskSets::Project do
       it 'passes value for team when available' do
         team = 'supercorp-team'
 
-        define_tasks(team: team)
+        define_tasks(team:)
 
         rake_task = Rake::Task['pipeline:set']
 
@@ -579,7 +579,7 @@ describe RakeFly::TaskSets::Project do
         argument_names = %i[argument names]
 
         define_tasks(
-          argument_names: argument_names
+          argument_names:
         )
 
         rake_task = Rake::Task['pipeline:set']
@@ -592,7 +592,7 @@ describe RakeFly::TaskSets::Project do
       it 'configures with pipeline' do
         pipeline = 'supercorp-something'
 
-        define_tasks(pipeline: pipeline)
+        define_tasks(pipeline:)
 
         rake_task = Rake::Task['pipeline:unpause']
 
@@ -614,7 +614,7 @@ describe RakeFly::TaskSets::Project do
       it 'uses the provided home directory when supplied' do
         home_directory = 'build/fly'
 
-        define_tasks(home_directory: home_directory)
+        define_tasks(home_directory:)
 
         rake_task = Rake::Task['pipeline:unpause']
 
@@ -633,7 +633,7 @@ describe RakeFly::TaskSets::Project do
       it 'uses the provided argument names when present' do
         argument_names = %i[argument names]
 
-        define_tasks(argument_names: argument_names)
+        define_tasks(argument_names:)
 
         rake_task = Rake::Task['pipeline:unpause']
 
@@ -643,7 +643,7 @@ describe RakeFly::TaskSets::Project do
       it 'passes value for team when available' do
         team = 'supercorp-team'
 
-        define_tasks(team: team)
+        define_tasks(team:)
 
         rake_task = Rake::Task['pipeline:unpause']
 
@@ -663,7 +663,7 @@ describe RakeFly::TaskSets::Project do
       it 'configures with pipeline' do
         pipeline = 'supercorp-something'
 
-        define_tasks(pipeline: pipeline)
+        define_tasks(pipeline:)
 
         rake_task = Rake::Task['pipeline:push']
 
@@ -712,7 +712,7 @@ describe RakeFly::TaskSets::Project do
       it 'uses the provided argument names when present' do
         argument_names = %i[argument names]
 
-        define_tasks(argument_names: argument_names)
+        define_tasks(argument_names:)
 
         rake_task = Rake::Task['pipeline:push']
 
@@ -725,7 +725,7 @@ describe RakeFly::TaskSets::Project do
         pipeline = 'supercorp-something'
 
         define_tasks(
-          pipeline: pipeline
+          pipeline:
         )
 
         rake_task = Rake::Task['pipeline:destroy']
@@ -736,7 +736,7 @@ describe RakeFly::TaskSets::Project do
       it 'uses the team as the target name by default' do
         team = 'supercorp'
 
-        define_tasks(team: team)
+        define_tasks(team:)
 
         rake_task = Rake::Task['pipeline:destroy']
 
@@ -746,7 +746,7 @@ describe RakeFly::TaskSets::Project do
       it 'uses the provided target when supplied' do
         target = 'supercorp-ci'
 
-        define_tasks(target: target)
+        define_tasks(target:)
 
         rake_task = Rake::Task['pipeline:destroy']
 
@@ -756,7 +756,7 @@ describe RakeFly::TaskSets::Project do
       it 'passes value for non interactive when available' do
         non_interactive = true
 
-        define_tasks(non_interactive: non_interactive)
+        define_tasks(non_interactive:)
 
         rake_task = Rake::Task['pipeline:destroy']
 
@@ -774,7 +774,7 @@ describe RakeFly::TaskSets::Project do
       it 'passes value for team when available' do
         team = 'supercorp-team'
 
-        define_tasks(team: team)
+        define_tasks(team:)
 
         rake_task = Rake::Task['pipeline:destroy']
 
@@ -805,7 +805,7 @@ describe RakeFly::TaskSets::Project do
         home_directory = '/tmp/fly'
 
         define_tasks(
-          home_directory: home_directory
+          home_directory:
         )
 
         rake_task = Rake::Task['pipeline:destroy']
@@ -825,7 +825,7 @@ describe RakeFly::TaskSets::Project do
       it 'uses the provided argument names when present' do
         argument_names = %i[argument names]
 
-        define_tasks(argument_names: argument_names)
+        define_tasks(argument_names:)
 
         rake_task = Rake::Task['pipeline:destroy']
 

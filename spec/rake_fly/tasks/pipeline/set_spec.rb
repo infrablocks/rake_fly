@@ -153,7 +153,7 @@ describe RakeFly::Tasks::Pipeline::Set do
     end
 
     namespace :pipeline do
-      described_class.define(argument_names: argument_names) do |t|
+      described_class.define(argument_names:) do |t|
         t.target = 'supercorp-ci'
         t.pipeline = 'supercorp-something2'
         t.config = 'ci/pipeline.yml'
@@ -216,9 +216,9 @@ describe RakeFly::Tasks::Pipeline::Set do
     expect(RubyFly)
       .to(have_received(:set_pipeline)
             .with(hash_including(
-                    target: target,
-                    pipeline: pipeline,
-                    config: config,
+                    target:,
+                    pipeline:,
+                    config:,
                     environment: {
                       'HOME' => home_directory
                     }
@@ -248,7 +248,7 @@ describe RakeFly::Tasks::Pipeline::Set do
     expect(RubyFly)
       .to(have_received(:set_pipeline)
             .with(hash_including(
-                    target: target,
+                    target:,
                     environment: {
                       'HOME' => home_directory
                     }
@@ -278,8 +278,8 @@ describe RakeFly::Tasks::Pipeline::Set do
     expect(RubyFly)
       .to(have_received(:set_pipeline)
             .with(hash_including(
-                    target: target,
-                    pipeline: pipeline,
+                    target:,
+                    pipeline:,
                     environment: {
                       'HOME' => home_directory
                     }
@@ -309,7 +309,7 @@ describe RakeFly::Tasks::Pipeline::Set do
     expect(RubyFly)
       .to(have_received(:set_pipeline)
             .with(hash_including(
-                    config: config,
+                    config:,
                     environment: {
                       'HOME' => home_directory
                     }
@@ -341,7 +341,7 @@ describe RakeFly::Tasks::Pipeline::Set do
     expect(RubyFly)
       .to(have_received(:set_pipeline)
             .with(hash_including(
-                    team: team,
+                    team:,
                     environment: {
                       'HOME' => home_directory
                     }
@@ -373,7 +373,7 @@ describe RakeFly::Tasks::Pipeline::Set do
 
     expect(RubyFly)
       .to(have_received(:set_pipeline)
-            .with(hash_including(vars: vars)))
+            .with(hash_including(vars:)))
   end
 
   it 'passes nil for vars when not present' do
@@ -449,7 +449,7 @@ describe RakeFly::Tasks::Pipeline::Set do
 
     expect(RubyFly)
       .to(have_received(:set_pipeline)
-            .with(hash_including(var_files: var_files)))
+            .with(hash_including(var_files:)))
   end
 
   it 'passes nil for var files when not present' do

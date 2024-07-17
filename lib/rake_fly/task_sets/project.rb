@@ -53,6 +53,7 @@ module RakeFly
 
       parameter :fly_ensure_task_name, default: :'fly:ensure'
 
+      # rubocop:disable Lint/SymbolConversion
       task Tasks::Authentication::Login,
            name: RakeFactory::DynamicValue.new { |ts|
              ts.authentication_login_task_name
@@ -114,6 +115,7 @@ module RakeFly
              "#{ts.authentication_ensure_task_name}"
                .to_sym
            }
+      # rubocop:enable Lint/SymbolConversion
 
       def define_on(application)
         around_define(application) do

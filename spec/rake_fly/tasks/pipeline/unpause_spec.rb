@@ -144,7 +144,7 @@ describe RakeFly::Tasks::Pipeline::Unpause do
     end
 
     namespace :pipeline do
-      described_class.define(argument_names: argument_names) do |t|
+      described_class.define(argument_names:) do |t|
         t.target = 'supercorp-ci'
         t.pipeline = 'supercorp-something2'
       end
@@ -202,8 +202,8 @@ describe RakeFly::Tasks::Pipeline::Unpause do
     expect(RubyFly)
       .to(have_received(:unpause_pipeline)
             .with(hash_including(
-                    target: target,
-                    pipeline: pipeline,
+                    target:,
+                    pipeline:,
                     environment: {
                       'HOME' => home_directory
                     }
@@ -231,8 +231,8 @@ describe RakeFly::Tasks::Pipeline::Unpause do
     expect(RubyFly)
       .to(have_received(:unpause_pipeline)
             .with(hash_including(
-                    target: target,
-                    pipeline: pipeline,
+                    target:,
+                    pipeline:,
                     environment: {
                       'HOME' => home_directory
                     }
@@ -262,7 +262,7 @@ describe RakeFly::Tasks::Pipeline::Unpause do
     expect(RubyFly)
       .to(have_received(:unpause_pipeline)
             .with(hash_including(
-                    team: team,
+                    team:,
                     environment: {
                       'HOME' => home_directory
                     }
@@ -290,8 +290,8 @@ describe RakeFly::Tasks::Pipeline::Unpause do
     expect(RubyFly)
       .to(have_received(:unpause_pipeline)
             .with(hash_including(
-                    target: target,
-                    pipeline: pipeline,
+                    target:,
+                    pipeline:,
                     environment: {
                       'HOME' => home_directory
                     }

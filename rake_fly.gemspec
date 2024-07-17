@@ -35,12 +35,12 @@ Gem::Specification.new do |spec|
   spec.executables = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ['lib']
 
-  spec.required_ruby_version = '>= 2.7'
+  spec.required_ruby_version = '>= 3.1'
 
   spec.add_dependency 'concourse.rb', '>= 0.4'
   spec.add_dependency 'rake_dependencies', '~> 3.1'
   spec.add_dependency 'rake_factory', '~> 0.29'
-  spec.add_dependency 'ruby_fly', '>= 0.35'
+  spec.add_dependency 'ruby_fly', '>= 0.40.0.pre.5'
   spec.add_dependency 'semantic', '~> 1.6'
 
   spec.add_development_dependency 'activesupport'

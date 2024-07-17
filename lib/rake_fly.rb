@@ -24,16 +24,16 @@ module RakeFly
     )
   end
 
-  def self.define_authentication_tasks(opts = {}, &block)
-    RakeFly::TaskSets::Authentication.define(opts, &block)
+  def self.define_authentication_tasks(opts = {}, &)
+    RakeFly::TaskSets::Authentication.define(opts, &)
   end
 
-  def self.define_pipeline_tasks(opts = {}, &block)
-    RakeFly::TaskSets::Pipeline.define(opts, &block)
+  def self.define_pipeline_tasks(opts = {}, &)
+    RakeFly::TaskSets::Pipeline.define(opts, &)
   end
 
-  def self.define_project_tasks(opts = {}, &block)
-    RakeFly::TaskSets::Project.define(opts, &block)
+  def self.define_project_tasks(opts = {}, &)
+    RakeFly::TaskSets::Project.define(opts, &)
   end
 
   class OptionResolver
@@ -46,14 +46,14 @@ module RakeFly
     # rubocop:disable Metrics/MethodLength
     def installation_task_set_options
       task_set_opts = {
-        namespace: namespace,
-        dependency: dependency,
-        version: version,
-        path: path,
-        type: type,
-        platform_os_names: platform_os_names,
-        uri_template: uri_template,
-        file_name_template: file_name_template,
+        namespace:,
+        dependency:,
+        version:,
+        path:,
+        type:,
+        platform_os_names:,
+        uri_template:,
+        file_name_template:,
         needs_fetch: needs_fetch_check_lambda
       }
 

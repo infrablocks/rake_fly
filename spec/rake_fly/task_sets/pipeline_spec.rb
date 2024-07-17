@@ -12,8 +12,8 @@ describe RakeFly::TaskSets::Pipeline do
 
     described_class.define(
       namespace: :pipeline,
-      target: target,
-      pipeline: pipeline
+      target:,
+      pipeline:
     )
 
     expect(Rake.application)
@@ -31,8 +31,8 @@ describe RakeFly::TaskSets::Pipeline do
     pipeline = 'supercorp-something'
 
     described_class.define(
-      target: target,
-      pipeline: pipeline
+      target:,
+      pipeline:
     )
 
     expect(Rake.application)
@@ -51,7 +51,7 @@ describe RakeFly::TaskSets::Pipeline do
 
       namespace :pipeline do
         described_class.define(
-          target: target
+          target:
         )
       end
 
@@ -65,7 +65,7 @@ describe RakeFly::TaskSets::Pipeline do
 
       namespace :pipeline do
         described_class.define(
-          pipeline: pipeline
+          pipeline:
         )
       end
 
@@ -83,8 +83,8 @@ describe RakeFly::TaskSets::Pipeline do
 
       namespace :pipeline do
         described_class.define(
-          target: target,
-          pipeline: pipeline
+          target:,
+          pipeline:
         )
       end
 
@@ -100,9 +100,9 @@ describe RakeFly::TaskSets::Pipeline do
 
       namespace :pipeline do
         described_class.define(
-          target: target,
-          pipeline: pipeline,
-          home_directory: home_directory
+          target:,
+          pipeline:,
+          home_directory:
         )
       end
 
@@ -130,7 +130,7 @@ describe RakeFly::TaskSets::Pipeline do
 
       namespace :pipeline do
         described_class.define(
-          argument_names: argument_names,
+          argument_names:,
 
           target: 'supercorp-ci',
           pipeline: 'supercorp-something'
@@ -149,7 +149,7 @@ describe RakeFly::TaskSets::Pipeline do
 
       namespace :pipeline do
         described_class.define(
-          target: target
+          target:
         )
       end
 
@@ -163,7 +163,7 @@ describe RakeFly::TaskSets::Pipeline do
 
       namespace :pipeline do
         described_class.define(
-          pipeline: pipeline
+          pipeline:
         )
       end
 
@@ -177,7 +177,7 @@ describe RakeFly::TaskSets::Pipeline do
 
       namespace :pipeline do
         described_class.define(
-          config: config
+          config:
         )
       end
 
@@ -196,9 +196,9 @@ describe RakeFly::TaskSets::Pipeline do
 
       namespace :pipeline do
         described_class.define(
-          target: target,
-          pipeline: pipeline,
-          config: config
+          target:,
+          pipeline:,
+          config:
         )
       end
 
@@ -215,10 +215,10 @@ describe RakeFly::TaskSets::Pipeline do
 
       namespace :pipeline do
         described_class.define(
-          target: target,
-          pipeline: pipeline,
-          config: config,
-          home_directory: home_directory
+          target:,
+          pipeline:,
+          config:,
+          home_directory:
         )
       end
 
@@ -239,10 +239,10 @@ describe RakeFly::TaskSets::Pipeline do
 
       namespace :pipeline do
         described_class.define(
-          target: target,
-          pipeline: pipeline,
-          config: config,
-          vars: vars
+          target:,
+          pipeline:,
+          config:,
+          vars:
         )
       end
 
@@ -258,9 +258,9 @@ describe RakeFly::TaskSets::Pipeline do
 
       namespace :pipeline do
         described_class.define(
-          target: target,
-          pipeline: pipeline,
-          config: config
+          target:,
+          pipeline:,
+          config:
         )
       end
 
@@ -278,10 +278,10 @@ describe RakeFly::TaskSets::Pipeline do
 
       namespace :pipeline do
         described_class.define(
-          target: target,
-          pipeline: pipeline,
-          config: config,
-          var_files: var_files
+          target:,
+          pipeline:,
+          config:,
+          var_files:
         )
       end
 
@@ -297,9 +297,9 @@ describe RakeFly::TaskSets::Pipeline do
 
       namespace :pipeline do
         described_class.define(
-          target: target,
-          pipeline: pipeline,
-          config: config
+          target:,
+          pipeline:,
+          config:
         )
       end
 
@@ -316,10 +316,10 @@ describe RakeFly::TaskSets::Pipeline do
 
       namespace :pipeline do
         described_class.define(
-          target: target,
-          pipeline: pipeline,
-          config: config,
-          non_interactive: non_interactive
+          target:,
+          pipeline:,
+          config:,
+          non_interactive:
         )
       end
 
@@ -335,9 +335,9 @@ describe RakeFly::TaskSets::Pipeline do
 
       namespace :pipeline do
         described_class.define(
-          target: target,
-          pipeline: pipeline,
-          config: config
+          target:,
+          pipeline:,
+          config:
         )
       end
 
@@ -354,10 +354,10 @@ describe RakeFly::TaskSets::Pipeline do
 
       namespace :pipeline do
         described_class.define(
-          target: target,
-          team: team,
-          pipeline: pipeline,
-          config: config
+          target:,
+          team:,
+          pipeline:,
+          config:
         )
       end
 
@@ -373,9 +373,9 @@ describe RakeFly::TaskSets::Pipeline do
 
       namespace :pipeline do
         described_class.define(
-          target: target,
-          pipeline: pipeline,
-          config: config
+          target:,
+          pipeline:,
+          config:
         )
       end
 
@@ -404,7 +404,7 @@ describe RakeFly::TaskSets::Pipeline do
 
       namespace :pipeline do
         described_class.define(
-          argument_names: argument_names,
+          argument_names:,
 
           target: 'supercorp-ci',
           pipeline: 'supercorp-something',
@@ -424,7 +424,7 @@ describe RakeFly::TaskSets::Pipeline do
 
       namespace :pipeline do
         described_class.define(
-          target: target
+          target:
         )
       end
 
@@ -438,7 +438,7 @@ describe RakeFly::TaskSets::Pipeline do
 
       namespace :pipeline do
         described_class.define(
-          pipeline: pipeline
+          pipeline:
         )
       end
 
@@ -457,9 +457,9 @@ describe RakeFly::TaskSets::Pipeline do
 
       namespace :pipeline do
         described_class.define(
-          target: target,
-          pipeline: pipeline,
-          config: config
+          target:,
+          pipeline:,
+          config:
         )
       end
 
@@ -476,10 +476,10 @@ describe RakeFly::TaskSets::Pipeline do
 
       namespace :pipeline do
         described_class.define(
-          target: target,
-          pipeline: pipeline,
-          config: config,
-          home_directory: home_directory
+          target:,
+          pipeline:,
+          config:,
+          home_directory:
         )
       end
 
@@ -508,7 +508,7 @@ describe RakeFly::TaskSets::Pipeline do
 
       namespace :pipeline do
         described_class.define(
-          argument_names: argument_names,
+          argument_names:,
 
           target: 'supercorp-ci',
           pipeline: 'supercorp-something',
@@ -529,10 +529,10 @@ describe RakeFly::TaskSets::Pipeline do
 
       namespace :pipeline do
         described_class.define(
-          target: target,
-          team: team,
-          pipeline: pipeline,
-          config: config
+          target:,
+          team:,
+          pipeline:,
+          config:
         )
       end
 
@@ -548,9 +548,9 @@ describe RakeFly::TaskSets::Pipeline do
 
       namespace :pipeline do
         described_class.define(
-          target: target,
-          pipeline: pipeline,
-          config: config
+          target:,
+          pipeline:,
+          config:
         )
       end
 
@@ -566,7 +566,7 @@ describe RakeFly::TaskSets::Pipeline do
 
       namespace :pipeline do
         described_class.define(
-          target: target
+          target:
         )
       end
 
@@ -580,7 +580,7 @@ describe RakeFly::TaskSets::Pipeline do
 
       namespace :pipeline do
         described_class.define(
-          pipeline: pipeline
+          pipeline:
         )
       end
 
@@ -657,7 +657,7 @@ describe RakeFly::TaskSets::Pipeline do
 
       namespace :pipeline do
         described_class.define(
-          argument_names: argument_names,
+          argument_names:,
 
           target: 'supercorp-ci',
           pipeline: 'supercorp-something',
@@ -677,7 +677,7 @@ describe RakeFly::TaskSets::Pipeline do
 
       namespace :pipeline do
         described_class.define(
-          target: target
+          target:
         )
       end
 
@@ -691,7 +691,7 @@ describe RakeFly::TaskSets::Pipeline do
 
       namespace :pipeline do
         described_class.define(
-          pipeline: pipeline
+          pipeline:
         )
       end
 
@@ -707,9 +707,9 @@ describe RakeFly::TaskSets::Pipeline do
 
       namespace :pipeline do
         described_class.define(
-          target: target,
-          pipeline: pipeline,
-          non_interactive: non_interactive
+          target:,
+          pipeline:,
+          non_interactive:
         )
       end
 
@@ -724,8 +724,8 @@ describe RakeFly::TaskSets::Pipeline do
 
       namespace :pipeline do
         described_class.define(
-          target: target,
-          pipeline: pipeline
+          target:,
+          pipeline:
         )
       end
 
@@ -741,9 +741,9 @@ describe RakeFly::TaskSets::Pipeline do
 
       namespace :pipeline do
         described_class.define(
-          target: target,
-          team: team,
-          pipeline: pipeline
+          target:,
+          team:,
+          pipeline:
         )
       end
 
@@ -758,8 +758,8 @@ describe RakeFly::TaskSets::Pipeline do
 
       namespace :pipeline do
         described_class.define(
-          target: target,
-          pipeline: pipeline
+          target:,
+          pipeline:
         )
       end
 
@@ -777,8 +777,8 @@ describe RakeFly::TaskSets::Pipeline do
 
       namespace :pipeline do
         described_class.define(
-          target: target,
-          pipeline: pipeline
+          target:,
+          pipeline:
         )
       end
 
@@ -794,9 +794,9 @@ describe RakeFly::TaskSets::Pipeline do
 
       namespace :pipeline do
         described_class.define(
-          target: target,
-          pipeline: pipeline,
-          home_directory: home_directory
+          target:,
+          pipeline:,
+          home_directory:
         )
       end
 
@@ -824,7 +824,7 @@ describe RakeFly::TaskSets::Pipeline do
 
       namespace :pipeline do
         described_class.define(
-          argument_names: argument_names,
+          argument_names:,
 
           target: 'supercorp-ci',
           pipeline: 'supercorp-something'

@@ -125,7 +125,7 @@ describe RakeFly::Tasks::Authentication::Ensure do
   it 'configures the task with the provided arguments if specified' do
     argument_names = %i[deployment_identifier region]
 
-    define_task(argument_names: argument_names) do |t|
+    define_task(argument_names:) do |t|
       t.target = 'supercorp-ci'
     end
 

@@ -206,7 +206,7 @@ describe RakeFly::Tasks::Authentication::Login do
   it 'configures the task with the provided arguments if specified' do
     argument_names = %i[deployment_identifier region]
 
-    define_task(argument_names: argument_names) do |t|
+    define_task(argument_names:) do |t|
       t.concourse_url = 'https://concourse.example.com'
       t.target = 'supercorp-ci'
       t.username = 'some-user'
@@ -358,9 +358,9 @@ describe RakeFly::Tasks::Authentication::Login do
         .to(have_received(:login)
               .with(hash_including(
                       target: target_name,
-                      concourse_url: concourse_url,
-                      username: username,
-                      password: password,
+                      concourse_url:,
+                      username:,
+                      password:,
                       team: team_name,
                       environment: {
                         'HOME' => home_directory
@@ -421,7 +421,7 @@ describe RakeFly::Tasks::Authentication::Login do
 
     allow(skymarshal_client)
       .to(receive(:create_token)
-            .with(username: username, password: password)
+            .with(username:, password:)
             .and_return(token))
     token
   end

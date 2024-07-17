@@ -144,7 +144,7 @@ describe RakeFly::Tasks::Pipeline::Destroy do
     end
 
     namespace :something do
-      described_class.define(argument_names: argument_names) do |t|
+      described_class.define(argument_names:) do |t|
         t.target = 'supercorp-ci'
         t.pipeline = 'supercorp-something2'
       end
@@ -202,8 +202,8 @@ describe RakeFly::Tasks::Pipeline::Destroy do
     expect(RubyFly)
       .to(have_received(:destroy_pipeline)
             .with(hash_including(
-                    target: target,
-                    pipeline: pipeline,
+                    target:,
+                    pipeline:,
                     environment: {
                       'HOME' => home_directory
                     }
@@ -231,8 +231,8 @@ describe RakeFly::Tasks::Pipeline::Destroy do
     expect(RubyFly)
       .to(have_received(:destroy_pipeline)
             .with(hash_including(
-                    target: target,
-                    pipeline: pipeline,
+                    target:,
+                    pipeline:,
                     environment: {
                       'HOME' => home_directory
                     }
@@ -260,8 +260,8 @@ describe RakeFly::Tasks::Pipeline::Destroy do
     expect(RubyFly)
       .to(have_received(:destroy_pipeline)
             .with(hash_including(
-                    target: target,
-                    pipeline: pipeline,
+                    target:,
+                    pipeline:,
                     environment: {
                       'HOME' => home_directory
                     }

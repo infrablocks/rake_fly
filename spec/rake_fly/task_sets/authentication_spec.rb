@@ -39,7 +39,7 @@ describe RakeFly::TaskSets::Authentication do
 
       namespace :authentication do
         described_class.define(
-          target: target
+          target:
         )
       end
 
@@ -53,7 +53,7 @@ describe RakeFly::TaskSets::Authentication do
 
       namespace :authentication do
         described_class.define(
-          concourse_url: concourse_url
+          concourse_url:
         )
       end
 
@@ -71,8 +71,8 @@ describe RakeFly::TaskSets::Authentication do
 
       namespace :authentication do
         described_class.define(
-          concourse_url: concourse_url,
-          target: target
+          concourse_url:,
+          target:
         )
       end
 
@@ -88,9 +88,9 @@ describe RakeFly::TaskSets::Authentication do
 
       namespace :authentication do
         described_class.define(
-          target: target,
-          concourse_url: concourse_url,
-          home_directory: home_directory
+          target:,
+          concourse_url:,
+          home_directory:
         )
       end
 
@@ -105,8 +105,8 @@ describe RakeFly::TaskSets::Authentication do
 
       namespace :authentication do
         described_class.define(
-          concourse_url: concourse_url,
-          target: target
+          concourse_url:,
+          target:
         )
       end
 
@@ -122,8 +122,8 @@ describe RakeFly::TaskSets::Authentication do
 
       namespace :authentication do
         described_class.define(
-          target: target,
-          concourse_url: concourse_url
+          target:,
+          concourse_url:
         )
       end
 
@@ -139,9 +139,9 @@ describe RakeFly::TaskSets::Authentication do
 
       namespace :authentication do
         described_class.define(
-          target: target,
-          concourse_url: concourse_url,
-          backend: backend
+          target:,
+          concourse_url:,
+          backend:
         )
       end
 
@@ -157,9 +157,9 @@ describe RakeFly::TaskSets::Authentication do
 
       namespace :authentication do
         described_class.define(
-          target: target,
-          concourse_url: concourse_url,
-          team: team
+          target:,
+          concourse_url:,
+          team:
         )
       end
 
@@ -174,8 +174,8 @@ describe RakeFly::TaskSets::Authentication do
 
       namespace :authentication do
         described_class.define(
-          target: target,
-          concourse_url: concourse_url
+          target:,
+          concourse_url:
         )
       end
 
@@ -191,9 +191,9 @@ describe RakeFly::TaskSets::Authentication do
 
       namespace :authentication do
         described_class.define(
-          target: target,
-          concourse_url: concourse_url,
-          username: username
+          target:,
+          concourse_url:,
+          username:
         )
       end
 
@@ -208,8 +208,8 @@ describe RakeFly::TaskSets::Authentication do
 
       namespace :authentication do
         described_class.define(
-          target: target,
-          concourse_url: concourse_url
+          target:,
+          concourse_url:
         )
       end
 
@@ -225,9 +225,9 @@ describe RakeFly::TaskSets::Authentication do
 
       namespace :authentication do
         described_class.define(
-          target: target,
-          concourse_url: concourse_url,
-          password: password
+          target:,
+          concourse_url:,
+          password:
         )
       end
 
@@ -241,7 +241,7 @@ describe RakeFly::TaskSets::Authentication do
 
       namespace :authentication do
         described_class.define(
-          argument_names: argument_names,
+          argument_names:,
 
           target: 'supercorp-ci',
           concourse_url: 'https://concourse.example.com'
@@ -273,7 +273,7 @@ describe RakeFly::TaskSets::Authentication do
       target = 'supercorp-ci'
 
       namespace :authentication do
-        described_class.define(target: target)
+        described_class.define(target:)
       end
 
       rake_task = Rake::Task['authentication:ensure']
@@ -289,7 +289,7 @@ describe RakeFly::TaskSets::Authentication do
 
       namespace :authentication do
         described_class.define(
-          target: target
+          target:
         )
       end
 
@@ -304,8 +304,8 @@ describe RakeFly::TaskSets::Authentication do
 
       namespace :authentication do
         described_class.define(
-          target: target,
-          home_directory: home_directory
+          target:,
+          home_directory:
         )
       end
 
@@ -319,7 +319,7 @@ describe RakeFly::TaskSets::Authentication do
 
       namespace :authentication do
         described_class.define(
-          argument_names: argument_names,
+          argument_names:,
 
           target: 'supercorp-ci'
         )

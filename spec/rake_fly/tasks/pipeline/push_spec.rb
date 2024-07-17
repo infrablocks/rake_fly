@@ -76,7 +76,7 @@ describe RakeFly::Tasks::Pipeline::Push do
 
     namespace :pipeline do
       described_class.define(
-        argument_names: argument_names,
+        argument_names:,
         target: 'supercorp-ci',
         pipeline: 'supercorp-something'
       )
