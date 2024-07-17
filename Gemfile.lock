@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    rake_fly (2.14.0.pre.5)
+    rake_fly (2.14.0.pre.6)
       concourse.rb (>= 0.4)
       rake_dependencies (~> 3.1)
       rake_factory (~> 0.29)
