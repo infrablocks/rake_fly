@@ -42,7 +42,7 @@ GEM
       addressable (~> 2.8)
     drb (2.2.1)
     excon (0.111.0)
-    fakefs (3.0.0)
+    fakefs (3.0.1)
     faker (3.5.1)
       i18n (>= 1.8.11, < 2)
     faraday (2.10.0)
